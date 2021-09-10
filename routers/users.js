@@ -11,8 +11,7 @@ export class Users extends Router {
                 res.send(await new SCIM.Resources.User(req.query).read());
             } catch (ex) {
                 if (ex instanceof SCIM.Types.Error) {
-                    res.status(ex.status).setHeader("Content-Type", "application/scim+json");
-                    res.send(new SCIM.Messages.Error(ex.status, ex.scimType, ex.message));
+                    res.status(ex.status).send(new SCIM.Messages.Error(ex.status, ex.scimType, ex.message));
                 } else {
                     res.status(500).setHeader("Content-Type", "application/json");
                     res.send({...ex, status: "error", message: ex.message});
