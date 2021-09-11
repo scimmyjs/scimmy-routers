@@ -9,6 +9,7 @@ export class SCIMRouters extends Router {
         super();
         
         this.use("/", (req, res, next) => {
+            res.setHeader("Content-Type", "application/scim+json");
             SCIM.Resources.User.basepath(req.baseUrl);
             SCIM.Resources.Schema.basepath(req.baseUrl);
             SCIM.Resources.ResourceType.basepath(req.baseUrl);
