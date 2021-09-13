@@ -28,5 +28,17 @@ export class Users extends Router {
                 }
             }
         });
+        
+        this.post("/Users", async (req, res) => {
+            try {
+                res.status(201).send(await new SCIM.Resources.User(req.query).write(req.body));
+            } catch (ex) {
+                if (ex instanceof SCIM.Types.Error) {
+                    res.status(ex.status).send(new SCIM.Messages.Error(ex.status, ex.scimType, ex.message));
+                } else {
+                    res.status(500).send(new SCIM.Messages.Error(500, null, ex.message));
+                }
+            }
+        });
     }
 }
