@@ -5,7 +5,7 @@ export class Users extends Router {
     constructor() {
         super();
         
-        if (SCIM.Resources.registered(SCIM.Resources.User)) {
+        if (SCIM.Resources.declared(SCIM.Resources.User)) {
             this.get("/Users", async (req, res) => {
                 try {
                     res.send(await new SCIM.Resources.User(req.query).read());

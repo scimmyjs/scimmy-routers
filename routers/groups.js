@@ -5,7 +5,7 @@ export class Groups extends Router {
     constructor() {
         super();
         
-        if (SCIM.Resources.registered(SCIM.Resources.Group)) {
+        if (SCIM.Resources.declared(SCIM.Resources.Group)) {
             this.get("/Groups", async (req, res) => {
                 try {
                     res.send(await new SCIM.Resources.Group(req.query).read());
