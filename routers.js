@@ -1,5 +1,5 @@
 import {Router} from "express";
-import {Users} from "./routers/users.js";
+import {Users} from "./routers/resources.js";
 import {Groups} from "./routers/groups.js";
 import {Schemas} from "./routers/schemas.js";
 import {ResourceTypes} from "./routers/resourcetypes.js";
