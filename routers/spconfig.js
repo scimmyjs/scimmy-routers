@@ -9,11 +9,7 @@ export class ServiceProviderConfig extends Router {
             try {
                 res.send(await new SCIM.Resources.ServiceProviderConfig(req.query).read());
             } catch (ex) {
-                if (ex instanceof SCIM.Types.Error) {
-                    res.status(ex.status).send(new SCIM.Messages.Error(ex.status, ex.scimType, ex.message));
-                } else {
-                    res.status(500).send(new SCIM.Messages.Error(500, null, ex.message));
-                }
+                res.status(ex.status ?? 500).send(new SCIM.Messages.Error(ex));
             }
         });
     }
