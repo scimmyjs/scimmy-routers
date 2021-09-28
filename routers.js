@@ -1,4 +1,4 @@
-import {Router} from "express";
+import express, {Router} from "express";
 import {Resources} from "./routers/resources.js";
 import {Schemas} from "./routers/schemas.js";
 import {ResourceTypes} from "./routers/resourcetypes.js";
@@ -64,6 +64,9 @@ export class SCIMRouters extends Router {
             patch: true, filter: true, sort: true,
             authenticationSchemes: [{...authSchemeTypes[type], documentationUri: docUri}]
         });
+        
+        // Make sure SCIM JSON is decoded in request body
+        this.use(express.json({type: "application/scim+json", limit: "10mb"}));
         
         // Listen for first request to determine basepath for all resource types
         this.use("/", (req, res, next) => {
