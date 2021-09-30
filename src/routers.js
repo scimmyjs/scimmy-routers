@@ -1,9 +1,9 @@
 import express, {Router} from "express";
+import SCIMMY from "scimmy";
 import {Resources} from "./routers/resources.js";
 import {Schemas} from "./routers/schemas.js";
 import {ResourceTypes} from "./routers/resourcetypes.js";
 import {ServiceProviderConfig} from "./routers/spconfig.js";
-import * as SCIM from "../scim/scim.js";
 
 // Predefined SCIM Service Provider Config authentication scheme types
 const authSchemeTypes = {
@@ -34,9 +34,10 @@ const authSchemeTypes = {
 };
 
 /**
- * SCIM HTTP Routers Class
+ * SCIMMY HTTP Routers Class
+ * @class SCIMMYRouters
  */
-export class SCIMRouters extends Router {
+export class SCIMMYRouters extends Router {
     /**
      * Construct a new instance of SCIMRouters, validate authentication scheme, and set SCIM Service Provider Configuration
      * @param {Object} authScheme - details of the means of authenticating SCIM requests
@@ -60,7 +61,7 @@ export class SCIMRouters extends Router {
             throw new TypeError(`Unknown authentication scheme type '${type}' in SCIMRouters constructor`);
         
         // Register the authentication scheme, and other SCIM Service Provider Config options
-        SCIM.Config.set({
+        SCIMMY.Config.set({
             patch: true, filter: true, sort: true,
             authenticationSchemes: [{...authSchemeTypes[type], documentationUri: docUri}]
         });
@@ -71,11 +72,11 @@ export class SCIMRouters extends Router {
         // Listen for first request to determine basepath for all resource types
         this.use("/", (req, res, next) => {
             res.setHeader("Content-Type", "application/scim+json");
-            SCIM.Resources.User.basepath(req.baseUrl);
-            SCIM.Resources.Group.basepath(req.baseUrl);
-            SCIM.Resources.Schema.basepath(req.baseUrl);
-            SCIM.Resources.ResourceType.basepath(req.baseUrl);
-            SCIM.Resources.ServiceProviderConfig.basepath(req.baseUrl);
+            SCIMMY.Resources.User.basepath(req.baseUrl);
+            SCIMMY.Resources.Group.basepath(req.baseUrl);
+            SCIMMY.Resources.Schema.basepath(req.baseUrl);
+            SCIMMY.Resources.ResourceType.basepath(req.baseUrl);
+            SCIMMY.Resources.ServiceProviderConfig.basepath(req.baseUrl);
             next();
         });
         
@@ -87,7 +88,7 @@ export class SCIMRouters extends Router {
                 next();
             } catch (ex) {
                 // Wrap exceptions in unauthorized message
-                res.status(401).send(new SCIM.Messages.Error({status: 401, message: ex.message}));
+                res.status(401).send(new SCIMMY.Messages.Error({status: 401, message: ex.message}));
             }
         });
         
@@ -97,7 +98,7 @@ export class SCIMRouters extends Router {
         this.use(new ServiceProviderConfig());
         
         // Register endpoints for any declared resource types
-        for (let [,Resource] of Object.entries(SCIM.Resources.declared())) {
+        for (let [,Resource] of Object.entries(SCIMMY.Resources.declared())) {
             this.use(Resource.endpoint, new Resources(Resource));
         }
     }

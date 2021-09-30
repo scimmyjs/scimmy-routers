@@ -1,15 +1,22 @@
 import {Router} from "express";
-import * as SCIM from "../../scim/scim.js";
+import SCIMMY from "scimmy";
 
+/**
+ * SCIMMY ServiceProviderConfig Endpoints Router
+ * @class SCIMMYRouters.ServiceProviderConfig
+ */
 export class ServiceProviderConfig extends Router {
+    /**
+     * Construct an instance of an express router with endpoints for accessing ServiceProviderConfig
+     */
     constructor() {
         super();
         
         this.get("/ServiceProviderConfig", async (req, res) => {
             try {
-                res.send(await new SCIM.Resources.ServiceProviderConfig(req.query).read());
+                res.send(await new SCIMMY.Resources.ServiceProviderConfig(req.query).read());
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIM.Messages.Error(ex));
+                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             }
         });
     }

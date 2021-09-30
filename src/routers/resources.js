@@ -1,7 +1,15 @@
 import {Router} from "express";
-import * as SCIM from "../../scim/scim.js";
+import SCIMMY from "scimmy";
 
+/**
+ * SCIMMY Resource Type Instance Endpoints Router
+ * @class SCIMMYRouters.Resources
+ */
 export class Resources extends Router {
+    /**
+     * Construct an instance of an express router with endpoints for a given resource type instance
+     * @param {typeof SCIMMY.Types.Resource} Resource - the resource type instance for which endpoints are being registered
+     */
     constructor(Resource) {
         super();
         
@@ -9,7 +17,7 @@ export class Resources extends Router {
             try {
                 res.send(await new Resource(req.query).read());
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIM.Messages.Error(ex));
+                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             }
         });
         
@@ -17,7 +25,7 @@ export class Resources extends Router {
             try {
                 res.send(await new Resource(req.params.id, req.query).read());
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIM.Messages.Error(ex));
+                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             }
         });
         
@@ -25,7 +33,7 @@ export class Resources extends Router {
             try {
                 res.status(201).send(await new Resource(req.query).write(req.body));
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIM.Messages.Error(ex));
+                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             }
         });
         
@@ -33,7 +41,7 @@ export class Resources extends Router {
             try {
                 res.send(await new Resource(req.params.id, req.query).write(req.body));
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIM.Messages.Error(ex));
+                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             }
         });
         
@@ -42,7 +50,7 @@ export class Resources extends Router {
                 let value = await new Resource(req.params.id, req.query).patch(req.body);
                 res.status(!!value ? 200 : 204).send(value);
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIM.Messages.Error(ex));
+                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             }
         });
         
@@ -50,7 +58,7 @@ export class Resources extends Router {
             try {
                 res.status(204).send(await new Resource(req.params.id).dispose());
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIM.Messages.Error(ex));
+                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             }
         });
     }
