@@ -1,0 +1,46 @@
+{
+  "name": "scimmy-routers",
+  "description": "SCIMMY Express Routers",
+  "version": "1.0.0",
+  "author": "sleelin",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=16"
+  },
+  "main": "./dist/routers.js",
+  "types": "./dist/routers.d.ts",
+  "scripts": {
+    "clean": "node packager.js -t clean",
+    "build": "node packager.js -t build",
+    "prepare": "node packager.js -t prepack"
+  },
+  "files": [
+    "dist/**"
+  ],
+  "keywords": [
+    "SCIM",
+    "provisioning",
+    "identity",
+    "rfc7643",
+    "rfc7644"
+  ],
+  "homepage": "https://github.com/sleelin/scimmy-routers#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sleelin/scimmy-routers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sleelin/scimmy-routers/issues"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "scimmy": "github:sleelin/scimmy"
+  },
+  "devDependencies": {
+    "chalk": "^4.1.2",
+    "minimist": "^1.2.5",
+    "rollup": "^2.57.0",
+    "typescript": "^4.4.3"
+  }
+}
