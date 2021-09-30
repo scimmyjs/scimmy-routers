@@ -37,7 +37,7 @@ const authSchemeTypes = {
  * SCIMMY HTTP Routers Class
  * @class SCIMMYRouters
  */
-export class SCIMMYRouters extends Router {
+export default class SCIMMYRouters extends Router {
     /**
      * Construct a new instance of SCIMRouters, validate authentication scheme, and set SCIM Service Provider Configuration
      * @param {Object} authScheme - details of the means of authenticating SCIM requests
