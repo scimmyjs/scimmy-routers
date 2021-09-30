@@ -119,11 +119,18 @@ export class Packager {
         
         await step("Preparing TypeScript definitions", [{
             pre: `Writing definitions to ${chalk.blue(dest)}/${chalk.magenta(Packager.#assets.entry.replace(".js", ".d.ts"))}: `,
-            post: "Generated type definitions for the following files:",
+            post: "Generated type definitions from the following files:",
             action: async () => {
-                let bundles = await Packager.typedefs(
-                    `${src}/${Packager.#assets.entry}`, `${dest}/${Packager.#assets.entry.replace(".js", ".d.ts")}`,
-                    {allowJs: true, declaration: true, emitDeclarationOnly: true});
+                let dtsPath = `${dest}/${Packager.#assets.entry.replace(".js", ".d.ts")}`,
+                    bundles = await Packager.typedefs(`${src}/${Packager.#assets.entry}`, dtsPath, {
+                        allowJs: true, declaration: true, emitDeclarationOnly: true
+                    }),
+                    dtsFile = await fs.readFile(dtsPath, "utf8");
+                
+                // Strip irrelevant module declarations from .d.ts file, and rename module
+                await fs.writeFile(dtsPath, dtsFile
+                    .slice(dtsFile.indexOf('declare module "routers"'))
+                    .replace('declare module "routers"', 'declare module "scimmy-routers"'));
                 
                 return bundles.map(file => file.replace(src, chalk.grey(src)));
             }
