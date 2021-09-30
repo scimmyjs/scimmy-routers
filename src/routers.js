@@ -5,6 +5,9 @@ import {Schemas} from "./routers/schemas.js";
 import {ResourceTypes} from "./routers/resourcetypes.js";
 import {ServiceProviderConfig} from "./routers/spconfig.js";
 
+// Re-export SCIMMY for consumption by dependent packages
+export {SCIMMY};
+
 // Predefined SCIM Service Provider Config authentication scheme types
 const authSchemeTypes = {
     oauth: {
