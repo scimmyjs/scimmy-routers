@@ -1,0 +1,57 @@
+# SCIMMY Express Routers
+
+Provides a set of express routers that implement the application-level HTTP-based SCIM 2.0 protocol ([RFC7644](https://datatracker.ietf.org/doc/html/rfc7644)), which is designed to simplify resource provisioning and identity management in cloud-based applications and services.  
+The routers leverage work done in the [SCIMMY](https://github.com/sleelin/scimmy) package, which provides a set of tools that can be used to parse incoming, and format outgoing data according to the SCIM 2.0 protocol.
+
+##### Requirements
+*   [Node.js](https://nodejs.org) v16+ with NPM 7+ 
+
+## Installation and Usage
+
+Through NPM:
+```
+$ npm install scimmy-routers
+```
+
+In your code:
+```js
+import express from "express";
+import SCIMMYRouters, {SCIMMY} from "scimmy-routers";
+
+// Create a new express app
+let app = express();
+
+// Declare resource types to SCIMMY package (see SCIMMY documentation for more details)
+SCIMMY.Resources.declare(SCIMMY.Resources.User, {/* Your handlers for user resource type */});
+SCIMMY.Resources.declare(SCIMMY.Resources.Group, {/* Your handlers for group resource type */});
+
+// Instantiate SCIMMYRouters as new middleware for express
+app.use("/scim", new SCIMMYRouters({
+    type: "bearer",
+    docUri: "http://example.com/help/oauth.html",
+    // Your handler for verifying authentication status of a request
+    handler: (request) => {
+        if (!request.header("Authorization")?.startsWith("Bearer ")) {
+            throw new Error("Authorization not detected!");
+        } else {
+            // Do nothing, request is authenticated
+        }
+    }
+}));
+```
+
+## API
+
+SCIMMY Express Routers provides a constructable middleware class which extends the Express Router class.  
+It can be used at any level of an Express app, as with any other middleware, however it is recommended that you include
+the path ```/scim``` somewhere in your mountpath.  
+
+The SCIMMYRouters constructor accepts a single configuration object argument which defines how authentication will be handled in the middleware.
+The properties of that object are:  
+*   ```type``` - required string specifying SCIM service provider authentication scheme type.
+    *   Currently supported values are "oauth", "bearer", "basic", and "digest", 
+        which respectively map to authenticationScheme types of "oauth2", "oauthbearertoken", "httpbasic", and "httpdigest".
+
+*   ```handler``` - required function specifying the method to invoke to authenticate SCIM requests to this middleware.
+
+*   ```docUri``` - optional string specifying the URL to use as the documentation URI for the service provider authentication scheme.
