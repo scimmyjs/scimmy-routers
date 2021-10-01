@@ -53,5 +53,6 @@ The properties of that object are:
         which respectively map to authenticationScheme types of "oauth2", "oauthbearertoken", "httpbasic", and "httpdigest".
 
 *   ```handler``` - required function specifying the method to invoke to authenticate SCIM requests to this middleware.
+    *   If a request is not authenticated, the function should throw a new Error with a brief message to be passed back by the response.
 
 *   ```docUri``` - optional string specifying the URL to use as the documentation URI for the service provider authentication scheme.
