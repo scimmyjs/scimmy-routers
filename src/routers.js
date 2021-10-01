@@ -75,11 +75,12 @@ export default class SCIMMYRouters extends Router {
         // Listen for first request to determine basepath for all resource types
         this.use("/", (req, res, next) => {
             res.setHeader("Content-Type", "application/scim+json");
-            SCIMMY.Resources.User.basepath(req.baseUrl);
-            SCIMMY.Resources.Group.basepath(req.baseUrl);
             SCIMMY.Resources.Schema.basepath(req.baseUrl);
             SCIMMY.Resources.ResourceType.basepath(req.baseUrl);
             SCIMMY.Resources.ServiceProviderConfig.basepath(req.baseUrl);
+            for (let [,Resource] of Object.entries(SCIMMY.Resources.declared()))
+                Resource.basepath(req.baseUrl);
+            
             next();
         });
         
