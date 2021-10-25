@@ -1,7 +1,7 @@
 {
   "name": "scimmy-routers",
   "description": "SCIMMY Express Routers",
-  "version": "1.0.0",
+  "version": "0.9.9",
   "author": "sleelin",
   "license": "MIT",
   "type": "module",
@@ -29,17 +29,17 @@
     "rfc7643",
     "rfc7644"
   ],
-  "homepage": "https://github.com/sleelin/scimmy-routers#readme",
+  "homepage": "https://github.com/scimmyjs/scimmy-routers#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sleelin/scimmy-routers.git"
+    "url": "git+https://github.com/scimmyjs/scimmy-routers.git"
   },
   "bugs": {
-    "url": "https://github.com/sleelin/scimmy-routers/issues"
+    "url": "https://github.com/scimmyjs/scimmy-routers/issues"
   },
   "dependencies": {
     "express": "^4.17.1",
-    "scimmy": "github:sleelin/scimmy"
+    "scimmy": "^0.9.9"
   },
   "devDependencies": {
     "chalk": "^4.1.2",

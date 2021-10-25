@@ -1,7 +1,7 @@
 # SCIMMY Express Routers
 
 Provides a set of express routers that implement the application-level HTTP-based SCIM 2.0 protocol ([RFC7644](https://datatracker.ietf.org/doc/html/rfc7644)), which is designed to simplify resource provisioning and identity management in cloud-based applications and services.  
-The routers leverage work done in the [SCIMMY](https://github.com/sleelin/scimmy) package, which provides a set of tools that can be used to parse incoming, and format outgoing data according to the SCIM 2.0 protocol.
+The routers leverage work done in the [SCIMMY](https://github.com/scimmyjs/scimmy) package, which provides a set of tools that can be used to parse incoming, and format outgoing data according to the SCIM 2.0 protocol.
 
 ##### Requirements
 *   [Node.js](https://nodejs.org) v16+ with NPM 7+ 
