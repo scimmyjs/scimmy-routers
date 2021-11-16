@@ -4,6 +4,7 @@ import {Resources} from "./routers/resources.js";
 import {Schemas} from "./routers/schemas.js";
 import {ResourceTypes} from "./routers/resourcetypes.js";
 import {ServiceProviderConfig} from "./routers/spconfig.js";
+import {Me} from "./routers/me.js";
 
 // Re-export SCIMMY for consumption by dependent packages
 export {SCIMMY};
@@ -78,7 +79,7 @@ export default class SCIMMYRouters extends Router {
             SCIMMY.Resources.Schema.basepath(req.baseUrl);
             SCIMMY.Resources.ResourceType.basepath(req.baseUrl);
             SCIMMY.Resources.ServiceProviderConfig.basepath(req.baseUrl);
-            for (let [,Resource] of Object.entries(SCIMMY.Resources.declared()))
+            for (let Resource of Object.values(SCIMMY.Resources.declared()))
                 Resource.basepath(req.baseUrl);
             
             next();
@@ -100,9 +101,10 @@ export default class SCIMMYRouters extends Router {
         this.use(new Schemas());
         this.use(new ResourceTypes());
         this.use(new ServiceProviderConfig());
+        this.use(new Me(handler));
         
         // Register endpoints for any declared resource types
-        for (let [,Resource] of Object.entries(SCIMMY.Resources.declared())) {
+        for (let Resource of Object.values(SCIMMY.Resources.declared())) {
             this.use(Resource.endpoint, new Resources(Resource));
         }
     }

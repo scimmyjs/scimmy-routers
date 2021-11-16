@@ -21,7 +21,7 @@ export class Resources extends Router {
             }
         });
         
-        this.get(`/:id`, async (req, res) => {
+        this.get("/:id", async (req, res) => {
             try {
                 res.send(await new Resource(req.params.id, req.query).read());
             } catch (ex) {
