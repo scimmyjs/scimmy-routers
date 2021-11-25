@@ -1,7 +1,7 @@
 {
   "name": "scimmy-routers",
   "description": "SCIMMY Express Routers",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "author": "sleelin",
   "license": "MIT",
   "type": "module",
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "scimmy": "^0.10.0"
+    "scimmy": "^1.0.0"
   },
   "devDependencies": {
     "chalk": "^4.1.2",
