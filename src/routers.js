@@ -4,6 +4,7 @@ import {Resources} from "./routers/resources.js";
 import {Schemas} from "./routers/schemas.js";
 import {ResourceTypes} from "./routers/resourcetypes.js";
 import {ServiceProviderConfig} from "./routers/spconfig.js";
+import {Search} from "./routers/search.js";
 import {Bulk} from "./routers/bulk.js";
 import {Me} from "./routers/me.js";
 
@@ -102,6 +103,7 @@ export default class SCIMMYRouters extends Router {
         this.use(new Schemas());
         this.use(new ResourceTypes());
         this.use(new ServiceProviderConfig());
+        this.use(new Search());
         this.use(new Bulk());
         this.use(new Me(handler));
         
