@@ -111,5 +111,8 @@ export default class SCIMMYRouters extends Router {
         for (let Resource of Object.values(SCIMMY.Resources.declared())) {
             this.use(Resource.endpoint, new Resources(Resource));
         }
+        
+        // If we get to this point, there's no matching endpoints
+        this.use((req, res) => res.status(404).send());
     }
 }
