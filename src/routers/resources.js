@@ -1,4 +1,5 @@
 import {Router} from "express";
+import {Search} from "./search.js";
 import SCIMMY from "scimmy";
 
 /**
@@ -12,6 +13,9 @@ export class Resources extends Router {
      */
     constructor(Resource) {
         super();
+        
+        // Mount /.search endpoint for resource
+        this.use(new Search(Resource));
         
         this.get("/", async (req, res) => {
             try {
