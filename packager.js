@@ -128,7 +128,7 @@ export class Packager {
                     dtsFile = await fs.readFile(dtsPath, "utf8");
                 
                 // Strip irrelevant module declarations from .d.ts file, and rename module
-                await fs.writeFile(dtsPath, dtsFile
+                await fs.writeFile(dtsPath, String(dtsFile)
                     .slice(dtsFile.indexOf('declare module "routers"'))
                     .replace('declare module "routers"', 'declare module "scimmy-routers"'));
                 
@@ -155,10 +155,12 @@ export class Packager {
         const config = {
             dir: dest,
             exports: "named",
-            preferConst: true,
+            manualChunks: chunks,
             minifyInternalExports: false,
             hoistTransitiveImports: false,
-            manualChunks: chunks
+            generatedCode: {
+                constBindings: true
+            }
         };
         
         // Prepare RollupJS bundle with supplied entry point
@@ -184,7 +186,7 @@ export class Packager {
      * @param {String} src - the source directory to read assets from
      * @param {String} dest - the destination file or directory to write compiled output to
      * @param {Object} config - options to pass through to the TypeScript Compiler
-     * @returns {String[]} names of files with generated types
+     * @returns {Promise<String[]>} names of files with generated types
      */
     static async typedefs(src, dest, config) {
         // Prepare a TypeScript Compiler Program for compilation
