@@ -4,6 +4,8 @@ import {Resources} from "./routers/resources.js";
 import {Schemas} from "./routers/schemas.js";
 import {ResourceTypes} from "./routers/resourcetypes.js";
 import {ServiceProviderConfig} from "./routers/spconfig.js";
+import {Search} from "./routers/search.js";
+import {Bulk} from "./routers/bulk.js";
 import {Me} from "./routers/me.js";
 
 // Re-export SCIMMY for consumption by dependent packages
@@ -66,12 +68,12 @@ export default class SCIMMYRouters extends Router {
         
         // Register the authentication scheme, and other SCIM Service Provider Config options
         SCIMMY.Config.set({
-            patch: true, filter: true, sort: true,
+            patch: true, filter: true, sort: true, bulk: true,
             authenticationSchemes: [{...authSchemeTypes[type], documentationUri: docUri}]
         });
         
         // Make sure SCIM JSON is decoded in request body
-        this.use(express.json({type: "application/scim+json", limit: "10mb"}));
+        this.use(express.json({type: "application/scim+json", limit: SCIMMY.Config.get()?.bulk?.maxPayloadSize ?? "1mb"}));
         
         // Listen for first request to determine basepath for all resource types
         this.use("/", (req, res, next) => {
@@ -101,11 +103,16 @@ export default class SCIMMYRouters extends Router {
         this.use(new Schemas());
         this.use(new ResourceTypes());
         this.use(new ServiceProviderConfig());
+        this.use(new Search());
+        this.use(new Bulk());
         this.use(new Me(handler));
         
         // Register endpoints for any declared resource types
         for (let Resource of Object.values(SCIMMY.Resources.declared())) {
             this.use(Resource.endpoint, new Resources(Resource));
         }
+        
+        // If we get to this point, there's no matching endpoints
+        this.use((req, res) => res.status(404).send());
     }
 }
