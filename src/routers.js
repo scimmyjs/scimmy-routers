@@ -75,7 +75,7 @@ export default class SCIMMYRouters extends Router {
         // Make sure SCIM JSON is decoded in request body
         this.use(express.json({type: "application/scim+json", limit: SCIMMY.Config.get()?.bulk?.maxPayloadSize ?? "1mb"}));
         
-        // Listen for first request to determine basepath for all resource types
+        // Listen for incoming requests to determine basepath for all resource types
         this.use("/", (req, res, next) => {
             res.setHeader("Content-Type", "application/scim+json");
             SCIMMY.Resources.Schema.basepath(req.baseUrl);
@@ -97,6 +97,18 @@ export default class SCIMMYRouters extends Router {
                 // Wrap exceptions in unauthorized message
                 res.status(401).send(new SCIMMY.Messages.Error({status: 401, message: ex.message}));
             }
+        });
+        
+        // Cast pagination query parameters from strings to numbers...
+        this.use(({query}, res, next) => {
+            for (let param of ["startIndex", "count"]) {
+                // ...but only if they were defined, were strings, and are valid as numbers
+                if (!!query[param] && typeof query[param] === "string" && !Number.isNaN(+query[param])) {
+                    query[param] = +query[param];
+                }
+            }
+            
+            next();
         });
         
         // Register core service provider endpoints
