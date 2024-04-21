@@ -16,7 +16,8 @@ $ npm install scimmy-routers
 In your code:
 ```js
 import express from "express";
-import SCIMMYRouters, {SCIMMY} from "scimmy-routers";
+import SCIMMY from "scimmy";
+import SCIMMYRouters from "scimmy-routers";
 
 // Create a new express app
 let app = express();
@@ -28,14 +29,19 @@ SCIMMY.Resources.declare(SCIMMY.Resources.Group, {/* Your handlers for group res
 // Instantiate SCIMMYRouters as new middleware for express
 app.use("/scim", new SCIMMYRouters({
     type: "bearer",
-    docUri: "http://example.com/help/oauth.html",
+    docUri: "https://example.com/help/oauth.html",
     // Your handler for verifying authentication status of a request
     handler: (request) => {
         if (!request.header("Authorization")?.startsWith("Bearer ")) {
             throw new Error("Authorization not detected!");
         } else {
-            // Do nothing, request is authenticated
+            return "some-user-ID";
         }
+    },
+    // Optionally, some method to provide additional context to requests...
+    context: (request) => {
+        // ...in this case, the URL params from the express request 
+        return request.params;
     }
 }));
 ```
@@ -55,5 +61,8 @@ The properties of that object are:
 *   ```handler``` - required function specifying the method to invoke to authenticate SCIM requests to this middleware.
     *   If a request is not authenticated, the function should throw a new Error with a brief message to be passed back by the response.
     *   If a specific user is authenticated, the function should return the ID string of the authenticated user.
+
+*   ```context``` - optional function specifying the method to invoke to provide additional context to SCIM requests.
+    *   Evaluated for each request, it can return anything, with the returned value passed directly to the ingress/egress/degress handler methods.
 
 *   ```docUri``` - optional string specifying the URL to use as the documentation URI for the service provider authentication scheme.
