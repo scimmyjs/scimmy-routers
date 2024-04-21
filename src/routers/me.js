@@ -9,18 +9,19 @@ import SCIMMY from "scimmy";
 export class Me extends Router {
     /**
      * Construct an instance of an express router with endpoints for accessing "Me" endpoint
-     * @param {Function} handler - method to invoke to get ID of authenticated SCIM user
+     * @param {AuthenticationHandler} handler - method to invoke to get ID of authenticated SCIM user
+     * @param {AuthenticationContext} [context] - method to invoke to evaluate context passed to SCIMMY handlers
      */
-    constructor(handler) {
-        super();
+    constructor(handler, context) {
+        super({mergeParams: true});
         
         // Respond to GET requests for /Me endpoint
         this.get("/Me", async (req, res) => {
             try {
-                let isDeclared = SCIMMY.Resources.declared(SCIMMY.Resources.User),
-                    id = await handler(req),
-                    // Only get the authenticated user if Users is declared and handler returns a string
-                    user = (isDeclared && typeof id === "string" ? await new SCIMMY.Resources.User(id).read() : false);
+                const id = await handler(req);
+                const isDeclared = SCIMMY.Resources.declared(SCIMMY.Resources.User);
+                // Only get the authenticated user if Users is declared and handler returns a string
+                const user = (isDeclared && typeof id === "string" ? await new SCIMMY.Resources.User(id).read(await context(req)) : false);
                 
                 // Set the actual location of the user resource, or respond with 501 not implemented
                 if (user && user?.meta?.location) res.location(user.meta.location).send(user);

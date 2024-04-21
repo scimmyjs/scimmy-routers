@@ -10,7 +10,7 @@ export class Schemas extends Router {
      * Construct an instance of an express router with endpoints for accessing Schemas
      */
     constructor() {
-        super();
+        super({mergeParams: true});
         
         this.get("/Schemas", async (req, res) => {
             try {
