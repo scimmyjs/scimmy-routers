@@ -40,21 +40,38 @@ const authSchemeTypes = {
 };
 
 /**
+ * Method invoked to authenticate a SCIM request
+ * @callback AuthenticationHandler
+ * @param {express.Request} req - the express request to be authenticated
+ * @returns {String|Promise<String>} the ID of the currently authenticated user, to be consumed by the /Me endpoint
+ * @private
+ */
+
+/**
+ * Method invoked to provide authentication context to a SCIM request
+ * @callback AuthenticationContext
+ * @param {express.Request} req - the express request to provide authentication context for
+ * @returns {*|Promise<*>} Any information to pass through to a Resource's handler methods
+ * @private
+ */
+
+/**
  * SCIMMY HTTP Routers Class
  * @class SCIMMYRouters
  */
 export default class SCIMMYRouters extends Router {
     /**
-     * Construct a new instance of SCIMRouters, validate authentication scheme, and set SCIM Service Provider Configuration
+     * Construct a new instance of SCIMMYRouters, validate authentication scheme, and set SCIM Service Provider Configuration
      * @param {Object} authScheme - details of the means of authenticating SCIM requests
      * @param {String} authScheme.type - SCIM service provider authentication scheme type
-     * @param {Function} authScheme.handler - method to invoke to authenticate SCIM requests
+     * @param {AuthenticationHandler} authScheme.handler - method to invoke to authenticate SCIM requests
+     * @param {AuthenticationContext} [authScheme.context] - method to invoke to evaluate context passed to SCIMMY handlers
      * @param {String} [authScheme.docUri] - URL to use as documentation URI for service provider authentication scheme
      */
     constructor(authScheme = {}) {
-        let {type, docUri, handler} = authScheme;
+        const {type, docUri, handler, context = (() => {})} = authScheme;
         
-        super();
+        super({mergeParams: true});
         
         // Make sure supplied authentication scheme is valid
         if (type === undefined)
@@ -62,9 +79,11 @@ export default class SCIMMYRouters extends Router {
         if (handler === undefined)
             throw new TypeError("Missing required parameter 'handler' from authentication scheme in SCIMRouters constructor");
         if (typeof handler !== "function")
-            throw new TypeError("Parameter 'handler' must be of type 'function' for authentication scheme in SCIMRouters constructor")
+            throw new TypeError("Parameter 'handler' must be of type 'function' for authentication scheme in SCIMRouters constructor");
         if (authSchemeTypes[type] === undefined)
             throw new TypeError(`Unknown authentication scheme type '${type}' in SCIMRouters constructor`);
+        if (typeof context !== "function")
+            throw new TypeError("Parameter 'context' must be of type 'function' for authentication scheme in SCIMRouters constructor");
         
         // Register the authentication scheme, and other SCIM Service Provider Config options
         SCIMMY.Config.set({
@@ -115,13 +134,13 @@ export default class SCIMMYRouters extends Router {
         this.use(new Schemas());
         this.use(new ResourceTypes());
         this.use(new ServiceProviderConfig());
-        this.use(new Search());
-        this.use(new Bulk());
-        this.use(new Me(handler));
+        this.use(new Search(context));
+        this.use(new Bulk(context));
+        this.use(new Me(handler, context));
         
         // Register endpoints for any declared resource types
         for (let Resource of Object.values(SCIMMY.Resources.declared())) {
-            this.use(Resource.endpoint, new Resources(Resource));
+            this.use(Resource.endpoint, new Resources(Resource, context));
         }
         
         // If we get to this point, there's no matching endpoints

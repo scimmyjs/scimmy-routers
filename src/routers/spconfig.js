@@ -10,7 +10,7 @@ export class ServiceProviderConfig extends Router {
      * Construct an instance of an express router with endpoints for accessing ServiceProviderConfig
      */
     constructor() {
-        super();
+        super({mergeParams: true});
         
         this.get("/ServiceProviderConfig", async (req, res) => {
             try {

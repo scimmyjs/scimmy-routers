@@ -10,7 +10,7 @@ export class ResourceTypes extends Router {
      * Construct an instance of an express router with endpoints for accessing ResourceTypes
      */
     constructor() {
-        super();
+        super({mergeParams: true});
         
         this.get("/ResourceTypes", async (req, res) => {
             try {
