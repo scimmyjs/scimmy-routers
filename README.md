@@ -1,3 +1,5 @@
+<img alt="SCIMMY Express Routers" src="https://scimmyjs.github.io/static/assets/routers.svg" width="512" />
+
 # SCIMMY Express Routers
 
 Provides a set of express routers that implement the application-level HTTP-based SCIM 2.0 protocol ([RFC7644](https://datatracker.ietf.org/doc/html/rfc7644)), which is designed to simplify resource provisioning and identity management in cloud-based applications and services.  
@@ -20,7 +22,7 @@ import SCIMMY from "scimmy";
 import SCIMMYRouters from "scimmy-routers";
 
 // Create a new express app
-let app = express();
+const app = express();
 
 // Declare resource types to SCIMMY package (see SCIMMY documentation for more details)
 SCIMMY.Resources.declare(SCIMMY.Resources.User, {/* Your handlers for user resource type */});
