@@ -67,9 +67,10 @@ export default class SCIMMYRouters extends Router {
      * @param {AuthenticationHandler} authScheme.handler - method to invoke to authenticate SCIM requests
      * @param {AuthenticationContext} [authScheme.context] - method to invoke to evaluate context passed to SCIMMY handlers
      * @param {String} [authScheme.docUri] - URL to use as documentation URI for service provider authentication scheme
+     * @param {String} [authScheme.baseUri] - URL to use as the base URI to enable absolute paths in location fields
      */
     constructor(authScheme = {}) {
-        const {type, docUri, handler, context = (() => {})} = authScheme;
+        const {type, docUri, baseUri, handler, context = (() => {})} = authScheme;
         
         super({mergeParams: true});
         
@@ -96,13 +97,19 @@ export default class SCIMMYRouters extends Router {
         
         // Listen for incoming requests to determine basepath for all resource types
         this.use("/", (req, res, next) => {
-            res.setHeader("Content-Type", "application/scim+json");
-            SCIMMY.Resources.Schema.basepath(req.baseUrl);
-            SCIMMY.Resources.ResourceType.basepath(req.baseUrl);
-            SCIMMY.Resources.ServiceProviderConfig.basepath(req.baseUrl);
+            // Determine a full base path with a root if a path is given.
+            const basePath = baseUri ? baseUri.replace(/\/$/, "") + req.baseUrl : req.baseUrl;
+
+            // Set all base paths correctly
+            SCIMMY.Resources.Schema.basepath(basePath);
+            SCIMMY.Resources.ResourceType.basepath(basePath);
+            SCIMMY.Resources.ServiceProviderConfig.basepath(basePath);
             for (let Resource of Object.values(SCIMMY.Resources.declared()))
-                Resource.basepath(req.baseUrl);
-            
+                Resource.basepath(basePath);
+
+            // Set correct header for SCIM responses
+            res.setHeader("Content-Type", "application/scim+json");
+
             next();
         });
         
