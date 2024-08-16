@@ -69,4 +69,4 @@ The properties of that object are:
 
 *   ```docUri``` - optional string specifying the URL to use as the documentation URI for the service provider authentication scheme.
 
-*   ```baseUri``` - optional string specifying the URL to use as the base URI for any location properties. This enables absolute URLs instead of relative URLs.
+*   ```baseUri``` - optional function specifying the URL to use as the base URI for any location properties. This enables absolute URLs instead of relative URLs (if function is not set or `undefined` is returned).
