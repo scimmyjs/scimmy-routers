@@ -68,3 +68,5 @@ The properties of that object are:
     *   Evaluated for each request, it can return anything, with the returned value passed directly to the ingress/egress/degress handler methods.
 
 *   ```docUri``` - optional string specifying the URL to use as the documentation URI for the service provider authentication scheme.
+
+*   ```baseUri``` - optional function specifying the URL to use as the base URI for any location properties. This enables absolute URLs instead of relative URLs (if function is not set or `undefined` is returned).

@@ -56,6 +56,14 @@ const authSchemeTypes = {
  */
 
 /**
+ * Method invoked to provide a base URI based on a SCIM request
+ * @callback BaseUriContext
+ * @param {express.Request} req - the express request to provide the base URI for
+ * @returns {String|Promise<String>|undefined|Promise<undefined>} the base URI to use for location properties in SCIM responses
+ * @private
+ */
+
+/**
  * SCIMMY HTTP Routers Class
  * @class SCIMMYRouters
  */
@@ -67,9 +75,10 @@ export default class SCIMMYRouters extends Router {
      * @param {AuthenticationHandler} authScheme.handler - method to invoke to authenticate SCIM requests
      * @param {AuthenticationContext} [authScheme.context] - method to invoke to evaluate context passed to SCIMMY handlers
      * @param {String} [authScheme.docUri] - URL to use as documentation URI for service provider authentication scheme
+     * @param {BaseUriContext} [authScheme.baseUri] - URL to use as the base URI to enable absolute paths in location fields
      */
     constructor(authScheme = {}) {
-        const {type, docUri, handler, context = (() => {})} = authScheme;
+        const {type, docUri, handler, context = (() => {}), baseUri = (() => undefined)} = authScheme;
         
         super({mergeParams: true});
         
@@ -84,6 +93,8 @@ export default class SCIMMYRouters extends Router {
             throw new TypeError(`Unknown authentication scheme type '${type}' in SCIMRouters constructor`);
         if (typeof context !== "function")
             throw new TypeError("Parameter 'context' must be of type 'function' for authentication scheme in SCIMRouters constructor");
+        if (typeof baseUri !== "function")
+            throw new TypeError("Parameter 'baseUri' must be of type 'function' for authentication scheme in SCIMRouters constructor");
         
         // Register the authentication scheme, and other SCIM Service Provider Config options
         SCIMMY.Config.set({
@@ -95,14 +106,27 @@ export default class SCIMMYRouters extends Router {
         this.use(express.json({type: "application/scim+json", limit: SCIMMY.Config.get()?.bulk?.maxPayloadSize ?? "1mb"}));
         
         // Listen for incoming requests to determine basepath for all resource types
-        this.use("/", (req, res, next) => {
-            res.setHeader("Content-Type", "application/scim+json");
-            SCIMMY.Resources.Schema.basepath(req.baseUrl);
-            SCIMMY.Resources.ResourceType.basepath(req.baseUrl);
-            SCIMMY.Resources.ServiceProviderConfig.basepath(req.baseUrl);
+        this.use("/", async (req, res, next) => {
+            // Invoke base URI determination function, possible Promise
+            const baseUriValue = await baseUri(req);
+
+            // Ignore if undefined return, if undefined: just use relative URL
+            // Make sure it does not end with a / to prevent // in the URL
+            let basePath = baseUriValue ? baseUriValue.replace(/\/$/, "") : "";
+
+            // Add basepath as determined by Express
+            basePath += req.baseUrl;
+
+            // Set all base paths correctly
+            SCIMMY.Resources.Schema.basepath(basePath);
+            SCIMMY.Resources.ResourceType.basepath(basePath);
+            SCIMMY.Resources.ServiceProviderConfig.basepath(basePath);
             for (let Resource of Object.values(SCIMMY.Resources.declared()))
-                Resource.basepath(req.baseUrl);
-            
+                Resource.basepath(basePath);
+
+            // Set correct header for SCIM responses
+            res.setHeader("Content-Type", "application/scim+json");
+
             next();
         });
         
