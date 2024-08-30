@@ -84,17 +84,17 @@ export default class SCIMMYRouters extends Router {
         
         // Make sure supplied authentication scheme is valid
         if (type === undefined)
-            throw new TypeError("Missing required parameter 'type' from authentication scheme in SCIMRouters constructor");
+            throw new TypeError("Missing required parameter 'type' from authentication scheme in SCIMMYRouters constructor");
         if (handler === undefined)
-            throw new TypeError("Missing required parameter 'handler' from authentication scheme in SCIMRouters constructor");
+            throw new TypeError("Missing required parameter 'handler' from authentication scheme in SCIMMYRouters constructor");
         if (typeof handler !== "function")
-            throw new TypeError("Parameter 'handler' must be of type 'function' for authentication scheme in SCIMRouters constructor");
+            throw new TypeError("Parameter 'handler' must be of type 'function' for authentication scheme in SCIMMYRouters constructor");
         if (authSchemeTypes[type] === undefined)
-            throw new TypeError(`Unknown authentication scheme type '${type}' in SCIMRouters constructor`);
+            throw new TypeError(`Unknown authentication scheme type '${type}' in SCIMMYRouters constructor`);
         if (typeof context !== "function")
-            throw new TypeError("Parameter 'context' must be of type 'function' for authentication scheme in SCIMRouters constructor");
+            throw new TypeError("Parameter 'context' must be of type 'function' for authentication scheme in SCIMMYRouters constructor");
         if (typeof baseUri !== "function")
-            throw new TypeError("Parameter 'baseUri' must be of type 'function' for authentication scheme in SCIMRouters constructor");
+            throw new TypeError("Parameter 'baseUri' must be of type 'function' for authentication scheme in SCIMMYRouters constructor");
         
         // Register the authentication scheme, and other SCIM Service Provider Config options
         SCIMMY.Config.set({
@@ -127,7 +127,7 @@ export default class SCIMMYRouters extends Router {
                 
                 next();
             } else {
-                res.status(500).send(new SCIMMY.Messages.Error({status: 500, message: "Method 'baseUri' must return a URL string in SCIMRouters constructor"}));
+                res.status(500).send(new SCIMMY.Messages.Error({status: 500, message: "Method 'baseUri' must return a URL string in SCIMMYRouters constructor"}));
             }
         });
         
