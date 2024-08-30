@@ -56,10 +56,10 @@ const authSchemeTypes = {
  */
 
 /**
- * Method invoked to provide a base URI based on a SCIM request
- * @callback BaseUriContext
+ * Method invoked to determine a base URI for location properties in a SCIM response
+ * @callback AuthenticationBaseUri
  * @param {express.Request} req - the express request to provide the base URI for
- * @returns {String|Promise<String>|undefined|Promise<undefined>} the base URI to use for location properties in SCIM responses
+ * @returns {String|Promise<String>} the base URI to use for location properties in SCIM responses
  * @private
  */
 
@@ -74,11 +74,11 @@ export default class SCIMMYRouters extends Router {
      * @param {String} authScheme.type - SCIM service provider authentication scheme type
      * @param {AuthenticationHandler} authScheme.handler - method to invoke to authenticate SCIM requests
      * @param {AuthenticationContext} [authScheme.context] - method to invoke to evaluate context passed to SCIMMY handlers
+     * @param {AuthenticationBaseUri} [authScheme.baseUri] - method to invoke to determine the URL to use as the base URI for any location properties in responses
      * @param {String} [authScheme.docUri] - URL to use as documentation URI for service provider authentication scheme
-     * @param {BaseUriContext} [authScheme.baseUri] - URL to use as the base URI to enable absolute paths in location fields
      */
     constructor(authScheme = {}) {
-        const {type, docUri, handler, context = (() => {}), baseUri = (() => undefined)} = authScheme;
+        const {type, docUri, handler, context = (() => {}), baseUri = (() => {})} = authScheme;
         
         super({mergeParams: true});
         
@@ -107,27 +107,28 @@ export default class SCIMMYRouters extends Router {
         
         // Listen for incoming requests to determine basepath for all resource types
         this.use("/", async (req, res, next) => {
-            // Invoke base URI determination function, possible Promise
-            const baseUriValue = await baseUri(req);
-
-            // Ignore if undefined return, if undefined: just use relative URL
-            // Make sure it does not end with a / to prevent // in the URL
-            let basePath = baseUriValue ? baseUriValue.replace(/\/$/, "") : "";
-
-            // Add basepath as determined by Express
-            basePath += req.baseUrl;
-
-            // Set all base paths correctly
-            SCIMMY.Resources.Schema.basepath(basePath);
-            SCIMMY.Resources.ResourceType.basepath(basePath);
-            SCIMMY.Resources.ServiceProviderConfig.basepath(basePath);
-            for (let Resource of Object.values(SCIMMY.Resources.declared()))
-                Resource.basepath(basePath);
-
             // Set correct header for SCIM responses
             res.setHeader("Content-Type", "application/scim+json");
-
-            next();
+            
+            // Evaluate the request-based basepath location
+            const basepath = await baseUri(req) ?? "";
+            
+            // Make sure it's a valid URL string
+            if (!basepath || typeof basepath === "string" && basepath.startsWith("https://")) {
+                // Construct the actual basepath to use for resource locations...
+                const location = basepath.replace(/\/$/, "") + req.baseUrl;
+                
+                // ...then set all resource basepaths correctly
+                SCIMMY.Resources.Schema.basepath(location);
+                SCIMMY.Resources.ResourceType.basepath(location);
+                SCIMMY.Resources.ServiceProviderConfig.basepath(location);
+                for (let Resource of Object.values(SCIMMY.Resources.declared()))
+                    Resource.basepath(location);
+                
+                next();
+            } else {
+                res.status(500).send(new SCIMMY.Messages.Error({status: 500, message: "Method 'baseUri' must return a URL string in SCIMRouters constructor"}));
+            }
         });
         
         // Make sure requests are authenticated using supplied auth handler method
