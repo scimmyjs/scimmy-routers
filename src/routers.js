@@ -103,7 +103,7 @@ export default class SCIMMYRouters extends Router {
         });
         
         // Make sure SCIM JSON is decoded in request body
-        this.use(express.json({type: "application/scim+json", limit: SCIMMY.Config.get()?.bulk?.maxPayloadSize ?? "1mb"}));
+        this.use(express.json({type: [ "application/scim+json", "application/json" ], limit: SCIMMY.Config.get()?.bulk?.maxPayloadSize ?? "1mb"}));
         
         // Listen for incoming requests to determine basepath for all resource types
         this.use("/", async (req, res, next) => {
