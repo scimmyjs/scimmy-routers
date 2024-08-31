@@ -20,7 +20,7 @@ export class Bulk extends Router {
                 const {supported, maxPayloadSize, maxOperations} = SCIMMY.Config.get()?.bulk ?? {};
                 
                 if (!supported) {
-                    res.status(501).send();
+                    res.status(501).send(new SCIMMY.Messages.Error({status: 501, message: "Endpoint Not Implemented"}));
                 } else if (Number(req.header("content-length")) > maxPayloadSize) {
                     throw new SCIMMY.Types.Error(413, null, `The size of the bulk operation exceeds maxPayloadSize limit (${maxPayloadSize})`);
                 } else {
