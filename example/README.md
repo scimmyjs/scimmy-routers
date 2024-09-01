@@ -4,15 +4,15 @@
 
 First go to the scimmy-routers root directory, install the dependencies and build the project:
 ```bash
-$ cd scimmy-routers/
-$ npm install
-$ npm run build
+cd scimmy-routers/
+npm install
+npm run build
 ```
 
 Then go to the `examples/` directory and install the dependencies (basically scimmy-routers):
 ```bash
-$ cd examples/
-$ npm install
+cd examples/
+npm install
 ```
 
 ## Setup the database
@@ -24,13 +24,13 @@ First ensure that you have [sqlite3](http://sqlite3.org/) installed on your syst
 
 Then you may run this script to create the `test.db` database:
 ```bash
-$ ./setup-db.sh
+./setup-db.sh
 ```
 
 Or alternatively run the following commands:
 ```bash
-$ sqlite3 test.db < ./structure.sql
-$ sqlite3 test.db < ./data.sql
+sqlite3 test.db < ./structure.sql
+sqlite3 test.db < ./data.sql
 ```
 
 ### Structure of the database
@@ -48,27 +48,27 @@ That being said, you can easily notice that the database structure contains diff
 Query the user #2 using the `admin` account:
 
 ```bash
-$ curl -H 'Authorization: Bearer api_key_admin' -v http://localhost:3000/scim/Users/2
+curl -H 'Authorization: Bearer api_key_admin' -v http://localhost:3000/scim/Users/2
 ```
 
 ### Get information about yourself (`/Me`)
 
 Query yourself using the `user` account:
 ```bash
-$ curl -H 'Authorization: Bearer api_key_user' -v http://localhost:3000/scim/Me
+curl -H 'Authorization: Bearer api_key_user' -v http://localhost:3000/scim/Me
 ```
 
 ### Fetch all the users
 
 Query all the users using the `admin` account:
 ```bash 
-$ curl -H 'Authorization: Bearer api_key_admin' -v http://localhost:3000/scim/Users
+curl -H 'Authorization: Bearer api_key_admin' -v http://localhost:3000/scim/Users
 ```
 
 ### Insert a new user
 
 ```bash
-$ curl -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' -X POST -d '{
+curl -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' -X POST -d '{
   "schemas": [
     "urn:ietf:params:scim:schemas:core:2.0:User"
   ],
@@ -89,7 +89,7 @@ $ curl -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/sc
 
 Here we replace the user of id 2 using the `PUT` method. Any omitted attribute will be removed from the record.
 ```bash
-$ curl -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' -X PUT -d '{
+curl -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' -X PUT -d '{
   "schemas": [
     "urn:ietf:params:scim:schemas:core:2.0:User"
   ],
@@ -113,7 +113,7 @@ $ curl -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/sc
 
 Update the admin email alias, using the `PATCH` method. Unlike the `PUT` method, any omitted attribute will NOT be deleted:
 ```bash
-$ curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' http://localhost:3000/scim/Users/1 -X PATCH -d '{
+curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' http://localhost:3000/scim/Users/1 -X PATCH -d '{
   "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
   "Operations": [{ 
     "op": "replace",
@@ -126,7 +126,7 @@ $ curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application
 ### Make several creations in a Bulk operation
 
 ```bash
-$ curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' http://localhost:3000/scim/Bulk -X POST -d '{
+curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' http://localhost:3000/scim/Bulk -X POST -d '{
   "schemas": [
     "urn:ietf:params:scim:api:messages:2.0:BulkRequest"
   ],
