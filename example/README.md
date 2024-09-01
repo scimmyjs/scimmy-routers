@@ -41,7 +41,54 @@ The users table has a name, an api_key, and a picture. A user can have multiple 
 
 That being said, you can easily notice that the database structure contains differences with the SCIM Users schema. For example, the latter expects a `userName`. If you take a look at the code, you will notice the `userName` is just an alias for the primary email.
 
+## The code
+
+Want to take a tour of the code? Here are few concepts to have in mind for this example:
+ - The main logic resides in `index.js`;
+ - The database model is represented in modules under the `db/` folder;
+ - And some utilities exist under the `scim/` folder which handle the conversion of SCIM Resource to Database model and vice versa.
+
+Currently the only resource supported in this example is the User.
+
+Now start by taking a look at the `index.js` file 👀.
+
+### Features supported
+
+With only the `ingress`, `egress` and `degress` handlers added in the `index.js` file, the following SCIM features are supported out of the box:
+
+- All the mandatory endpoints: 
+  - Resource creation using `POST /Resources/`; 
+  - Resource modification using `PUT /Resources/:id`; 
+  - Resource retrievals using `GET /Resources/` for all of them or `GET /Resources/:id` just for one;
+  - and Resource deletion using `DELETE /Resources/:id`.
+- The `/Schemas`, `/ServiceProviderConfig`, `/ResourceTypes`;
+- The `/Me` endpoint (it takes advantage of the `id` you returned in the authentication middleware);
+- The `POST /Bulk` endpoint;
+- Queries with sorting and filtering (whenever you use `GET /Resource` with the query params or the `POST /Resources/.search` endpoint);
+- Pagination of the results;
+- The `PATCH /Resources/:id` endpoint! It reads a resource using the egress method, applies the asked changes, and calls the ingress method to update the record;
+
+Amazing, isn't it? 🤯
+Take a look at the curl commands below to know how to play with the server.
+
+## Run the server
+
+Once you have setup your environment, just run the following command:
+```bash
+npm start
+```
+
+### Troubleshoot
+
+You may also start the server in debug mode (with the nodejs inspector enabled) with this command:
+```bash
+npm run debug
+```
+
+Take a look at this documentation to see how to then connect to an inspector client and start placing breakpoints: https://nodejs.org/en/learn/getting-started/debugging#inspector-clients
+
 ## Play with the SCIM server
+
 
 ### Query a single user
 

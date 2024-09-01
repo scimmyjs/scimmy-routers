@@ -3,7 +3,7 @@ import express from 'express';
 import SCIMMYRouters, { SCIMMY } from 'scimmy-routers';
 import { User } from './db/index.js';
 import crypto from 'crypto';
-import { fromSCIMMYUser, toSCIMMYUser } from './scim/userUtils.js';
+import { fromSCIMMYUser, toSCIMMYUser } from './utils/userUtils.js';
 
 // Create a new express app
 const app = express();
@@ -12,6 +12,8 @@ const ADMIN_USER_IDS = [ 1 ];
 const WHITELISTED_PATHS_FOR_NON_ADMINS = [ "/Me", "/Schemas", "/ResourceTypes", "/ServiceProviderConfig" ];
 
 // Declare resource types to SCIMMY package (see SCIMMY documentation for more details)
+//
+// Note that SCIMMY is a singleton, that's how SCIMMYRouters knows about the resources declared here.
 SCIMMY.Resources.declare(SCIMMY.Resources.User, {
   // Handler for fetching one or many resources
   egress: async (resource, data) => {
@@ -72,6 +74,7 @@ SCIMMY.Resources.declare(SCIMMY.Resources.User, {
       }
     } catch (ex) {
       console.error('Error in ingress handler:', ex.stack);
+      // If the error is already instanciated using SCIMMY.Types.Error, just throw it.
       if (ex instanceof SCIMMY.Types.Error) {
         throw ex;
       }
@@ -86,6 +89,8 @@ SCIMMY.Resources.declare(SCIMMY.Resources.User, {
             throw new SCIMMY.Types.Error(500, 'serverError', ex.message);
         }
       }
+      // If the error is not a SCIMMY error, throw a 500 error.
+      throw new SCIMMY.Types.Error(500, 'serverError', ex.message);
     }
   },
 
