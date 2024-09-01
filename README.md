@@ -76,5 +76,5 @@ The properties of that object are:
 
 ## 🚀 Example
 
-You would like to see it in action, and discover all the capabilities of this package?
-Take a look at the [example](/example/README.md) and follow the instructions to setup a SCIM server to play with.
+You would like to see it in action, and discover all the capabilities this package offers you with few lines of code?
+Take a look at the [example](/example/README.md), follow the instructions to setup a SCIM server to play with, and take a look at the code.
