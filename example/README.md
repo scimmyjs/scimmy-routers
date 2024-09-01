@@ -113,7 +113,7 @@ $ curl -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/sc
 
 Update the admin email alias, using the `PATCH` method. Unlike the `PUT` method, any omitted attribute will NOT be deleted:
 ```bash
-$ curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/json' http://localhost:3000/scim/Users/1 -X PATCH -d '{
+$ curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' http://localhost:3000/scim/Users/1 -X PATCH -d '{
   "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
   "Operations": [{ 
     "op": "replace",
@@ -126,7 +126,7 @@ $ curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application
 ### Make several creations in a Bulk operation
 
 ```bash
-$ curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/json' http://localhost:3000/scim/Bulk -X POST -d '{
+$ curl -v -H 'Authorization: Bearer api_key_admin' -H 'Content-Type: application/scim+json' http://localhost:3000/scim/Bulk -X POST -d '{
   "schemas": [
     "urn:ietf:params:scim:api:messages:2.0:BulkRequest"
   ],
@@ -186,7 +186,7 @@ curl -H 'Authorization: Bearer api_key_admin' -v -d '{
           "sortBy": "userName",
           "startIndex": 1,
           "count": 10
-        }' -H 'Content-Type: application/json' -X  POST 'http://localhost:3000/scim/Users/.search'
+        }' -H 'Content-Type: application/scim+json' -X  POST 'http://localhost:3000/scim/Users/.search'
 ```
 
 ### Delete a user
