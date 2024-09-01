@@ -1,11 +1,14 @@
-import connect, {sql} from '@databases/sqlite';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { sql } from '@databases/sqlite';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const db = connect(path.join(__dirname, 'test.db'));
+import { Login } from './login.js';
+import db from './connection.js';
 
 export class User {
+  /**
+   * Fetches a user from the database by its id with their associated logins. Returns null if the user does not exist.
+   * @param {number} id
+   * @returns {Promise<User>}
+   */
   static async getByID(id) {
     return db.tx(async transaction => { 
       const [user] = await transaction.query(sql`SELECT * FROM "users" WHERE "id" = ${id}`);
@@ -14,6 +17,11 @@ export class User {
     });
   }
 
+  /**
+   * Fetches all users from the database with their associated logins.
+   *
+   * @returns {Promise<User[]>}
+   */
   static async getAllUsers() {
     return db.tx(async transaction => {
       const users = await transaction.query(sql`SELECT * FROM "users"`);
@@ -22,10 +30,21 @@ export class User {
     });
   }
 
+  /**
+   * Fetches a user from the database by their API key. Returns null if the user does not exist.
+   * @param {string} apiKey 
+   * @returns {Promise<User>}
+   */
   static async getIdByApiKey(apiKey) {
     return await db.query(sql`SELECT "id" FROM "users" WHERE "api_key" = ${apiKey}`).then(data => data[0]?.id);
   }
 
+  /**
+   * Deserializes a user from the database data and their associated logins.
+   * @param {Object} data The user data from the database
+   * @param {Object[]} logins
+   * @returns {User}
+   */
   static fromDatabase(data, logins) {
     return new User({
       id: data.id,
@@ -86,6 +105,10 @@ export class User {
     return await User.getByID(this.id);
   }
 
+  /**
+   * Inserts the user into the database. Returns the user with the new id.
+   * @returns {Promise<User>}
+   */
   async insertIntoDb() {
     return await db.tx(async transaction => {
       await transaction.query(sql`INSERT INTO "users" ("id", "api_key", "name", "picture") VALUES (${this.id}, ${this.apiKey}, ${this.name}, ${this.picture}) RETURNING "id"`).then(data => {
@@ -94,9 +117,15 @@ export class User {
       for (const login of this.#logins) {
         await login.insertIntoDb(transaction, { userId: this.id });
       }
+      return this;
     });
   }
 
+  /**
+   * Updates the user in the database.
+   *
+   * @returns {Promise<void>}
+   */
   updateInDb() {
     return db.tx(async transaction => {
       await transaction.query(
@@ -105,8 +134,10 @@ export class User {
         SET "api_key" = ${this.apiKey}, "name" = ${this.name}, "picture" = ${this.picture}
         WHERE "id" = ${this.id}
       `);
+      // Delete logins that are not in the new logins
       await transaction.query(sql`DELETE FROM "logins" WHERE "user_id" = ${this.id} and "email" not in (${sql.join(this.logins.map(l => sql.value(l.email)), ", ")})`);
       for (const login of this.#logins) {
+        // Update or insert each login. If the email already exists, update it, otherwise insert it.
         if (await login.emailExistsInDb(transaction)) {
           await login.updateInDbByEmail(transaction);
         } else {
@@ -116,6 +147,11 @@ export class User {
     });
   }
 
+  /**
+   * Deletes the user from the database.
+   *
+   * @returns {Promise<void>}
+   */
   deleteFromDb() {
     return db.tx(async transaction => {
       await transaction.query(sql`DELETE FROM "users" WHERE "id" = ${this.id}`);
@@ -126,76 +162,3 @@ export class User {
   }
 }
 
-export class Login {
-  static fromDatabase(data) {
-    return new Login({
-      id: data.id,
-      email: data.email,
-      primary: data.primary === 't',
-      userId: data.user_id
-    });
-  }
-
-  #id;
-  #email;
-  #primary;
-  #userId;
-
-
-  constructor(data) {
-    this.#id = data.id;
-    this.#email = data.email;
-    this.#primary = data.primary;
-    this.#userId = data.userId || data.user_id;
-  }
-
-  get id() {
-    return parseInt(this.#id, 10);
-  }
-
-  get userId() {
-    return parseInt(this.#userId, 10);
-  }
-
-  get email() {
-    return this.#email;
-  }
-
-  get primary() {
-    return this.#primary;
-  }
-
-  async emailExistsInDb(transaction) {
-    if (!transaction) {
-      return db.tx(transaction => this.emailExistsInDb(transaction, options));
-    }
-    return await transaction.query(sql`SELECT 1 FROM "logins" WHERE "email" = ${this.email} AND "user_id" = ${this.userId}`).then(data => data.length);
-  }
-
-  bindToUser(user) {
-    this.#userId = user.id;
-  }
-
-  async insertIntoDb(transaction, overrideData) {
-    return await transaction.query(
-      sql`INSERT INTO "logins" ("user_id", "email", "primary") VALUES (${this.userId || overrideData.userId}, ${this.email}, ${this.primary ? 't' : 'f'}) RETURNING "id", "user_id"`
-    ).then(data => {
-      this.#id = data[0].id;
-      this.#userId = data[0].user_id;
-    });
-  }
-
-  async updateInDbByEmail(transaction) {
-    return await transaction.query(
-      sql`
-        UPDATE "logins" 
-        SET "email" = ${this.email}, "primary" = ${this.primary ? 't' : 'f'}
-        WHERE "email" = ${this.email} AND "user_id" = ${this.userId}
-      `
-    );
-  }
-  
-  async deleteFromDb(transaction) {
-    await transaction.query(sql`DELETE FROM "logins" WHERE "id" = ${this.id}`);
-  }
-}

@@ -1,7 +1,7 @@
 // This file demonstrates how to create a SCIMMY server using the SCIMMY and SCIMMYRouters packages.
 import express from 'express';
 import SCIMMYRouters, { SCIMMY } from 'scimmy-routers';
-import { User } from './db.js';
+import { User } from './db/index.js';
 import crypto from 'crypto';
 import { fromSCIMMYUser, toSCIMMYUser } from './scim/userUtils.js';
 

@@ -1,8 +1,9 @@
 import { SCIMMY } from "scimmy-routers";
-import { Login, User } from "../db.js";
+import { Login, User } from "../db/index.js";
 
 /**
  * Converts a user from your database to a SCIMMY user 
+ *
  * @param {User} user 
  * @returns {SCIMMY.Schemas.User}
  */
@@ -23,17 +24,30 @@ export function toSCIMMYUser(user) {
 
 /**
  * Converts a user from SCIMMY to your database
+ *
  * @param {SCIMMY.Schemas.User} scimmyUser
  * @param {Object} [defaultUserProperties] some properties to be set by default on the user
  * @returns {User}
  */
 export function fromSCIMMYUser(scimmyUser, defaultUserProperties = {}) {
   // validate scimmyUser has one and only one primary email
-  const primaryEmails = scimmyUser.emails.filter(email => email.primary);
+  let emails = scimmyUser.emails;
+  if (!emails || !emails.length) {
+    emails = [{
+      value: scimmyUser.userName,
+      primary: true,
+    }];
+  }
+  const primaryEmails = emails.filter(email => email.primary);
+
   if (primaryEmails.length !== 1) {
     throw new SCIMMY.Types.Error(400, 'invalidValue', 'SCIMMY user must have one and only one primary email');
   }
-  const logins = scimmyUser.emails.map(email => new Login({
+  if (primaryEmails[0].value !== scimmyUser.userName) {
+    throw new SCIMMY.Types.Error(400, 'invalidValue', 'SCIMMY user primary email must match the userName');
+  }
+
+  const logins = emails.map(email => new Login({
     email: email.value,
     primary: email.primary,
   }));
