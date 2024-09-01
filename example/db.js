@@ -1,6 +1,9 @@
 import connect, {sql} from '@databases/sqlite';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const db = connect('test.db');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const db = connect(path.join(__dirname, 'test.db'));
 
 export class User {
   static async getByID(id) {

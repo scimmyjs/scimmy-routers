@@ -9,31 +9,43 @@ import { fromSCIMMYUser, toSCIMMYUser } from './scim/userUtils.js';
 const app = express();
 
 const ADMIN_USER_IDS = [ 1 ];
-const WHITELISTED_PATHS_FOR_NON_ADMINS = [ "/Me", "/Schemas" ];
+const WHITELISTED_PATHS_FOR_NON_ADMINS = [ "/Me", "/Schemas", "/ResourceTypes", "/ServiceProviderConfig" ];
 
 // Declare resource types to SCIMMY package (see SCIMMY documentation for more details)
 SCIMMY.Resources.declare(SCIMMY.Resources.User, {
-
-  // Handler for GET requests to the /Users endpoint
+  // Handler for fetching one or many resources
   egress: async (resource, data) => {
+    console.info('Egress called: ', resource, data);
     // The id is either passed in the query string (/scim/Users/{id}) 
     // or deduced from the api key when the using the /scim/me endpoint (see the use of `getIdByApiKey` in the authorization handler below)
-    const { id } = resource;
+    const { id, filter } = resource;
     if (id) {
+      // Get the user by their ID
       const user = await User.getByID(id);
+      // Raise a 404 error if the user is not found
+      // This will be caught by SCIMMY and returned as a 404 response compliant with the SCIM RFC
       if (!user) {
         throw new SCIMMY.Types.Error(404, null, `User with ID ${id} not found`);
       }
+      // Convert the user DB model to a SCIMMY user object and return it
+      // so SCIMMY will format a compliant SCIM response
       return toSCIMMYUser(user);
-    } else {
-      const users = await User.getAllUsers();
-      return users.map(user => toSCIMMYUser(user));
     }
+    // No ID was passed, so we are querying all users from the DB
+    const users = await User.getAllUsers();
+    // Convert all users to SCIMMY user objects
+    const scimmyUsers = users.map(user => toSCIMMYUser(user));
+
+    // Either return all users or filter them based on the passed filter if it exists
+    // The filter is passed in the query string or through the body of the /Resource/.search
+    // See https://www.rfc-editor.org/rfc/rfc7644#section-3.4.2.2
+    return filter ? filter.match(scimmyUsers) : scimmyUsers;
   },
 
+  // Handler for udpating or creating one resource
   ingress: async (resource, data) => {
+    console.info('Ingress called: ', resource, data);
     try {
-      console.log('Resource:', resource, 'Data:', data);
       const { id } = resource;
       if (id) {
         // This is an update request.
@@ -44,21 +56,18 @@ SCIMMY.Resources.declare(SCIMMY.Resources.User, {
         }
 
         // Now update the user. The data object contains the new user data 
-        // Any missing property in the data object is removed from the user
+        // We just keep the ID and API key from the old user (we assume the api key cannot be changed using SCIM).
         const updatedUser = fromSCIMMYUser(data, { id: oldUser.id, apiKey: oldUser.apiKey});
-        try {
-          await updatedUser.updateInDb();
-        } catch (ex) {
-          console.error(ex);
-          throw ex;
-        }
+        await updatedUser.updateInDb();
+        // Refresh the user from the database and return it as a SCIMMY user object
         return toSCIMMYUser(await updatedUser.getRefreshedFromDb());
       } else {
-        // This is a create request
+        // This is a creation request
         const newUser = fromSCIMMYUser(data, {
           apiKey: crypto.randomBytes(32).toString('hex')
         });
         await newUser.insertIntoDb();
+        // Refresh the user from the database and return it as a SCIMMY user object
         return toSCIMMYUser(await newUser.getRefreshedFromDb());
       }
     } catch (ex) {
@@ -69,6 +78,9 @@ SCIMMY.Resources.declare(SCIMMY.Resources.User, {
       if (ex.code?.startsWith('SQLITE')) {
         switch (ex.code) {
           case 'SQLITE_CONSTRAINT':
+            // Return a 409 error if a conflict is detected (e.g. email already exists)
+            // "uniqueness" is an error code expected by the SCIM RFC for this case.
+            // FIXME: the emails are unique in the database, but this is not enforced in the schema.
             throw new SCIMMY.Types.Error(409, 'uniqueness', ex.message);
           default:
             throw new SCIMMY.Types.Error(500, 'serverError', ex.message);
@@ -77,7 +89,9 @@ SCIMMY.Resources.declare(SCIMMY.Resources.User, {
     }
   },
 
+  // Handler for deleting one resource
   degress: async (resource, data) => {
+    console.info('Degress called: ', resource, data);
     const { id } = resource;
     if (id) {
       const user = await User.getByID(id);
@@ -90,8 +104,6 @@ SCIMMY.Resources.declare(SCIMMY.Resources.User, {
     }
   }
 });
-
-SCIMMY.Resources.declare(SCIMMY.Resources.Group, {/* Your handlers for group resource type */})
 
 // Create a new SCIMMY server
 // The SCIMMY server will be mounted at the /scim endpoint
@@ -113,7 +125,10 @@ app.use("/scim", new SCIMMYRouters({
     if (id === null || id === undefined) {
       throw new Error("Invalid API key!");
     }
+
     console.info('Authenticated as user ID:', id);
+    console.info('Request body:', request.body);
+
 
     // Disallow non-admin users from accessing paths that are not whitelisted (like `/Me`)
     if (!WHITELISTED_PATHS_FOR_NON_ADMINS.includes(request.path) && !ADMIN_USER_IDS.includes(id)) {
@@ -125,5 +140,5 @@ app.use("/scim", new SCIMMYRouters({
 }));
 
 app.listen(3000, () => {
-  console.log("Server running on port 3000");
+  console.info("Server running on port 3000");
 });

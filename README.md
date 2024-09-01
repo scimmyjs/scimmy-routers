@@ -37,6 +37,7 @@ app.use("/scim", new SCIMMYRouters({
         if (!request.header("Authorization")?.startsWith("Bearer ")) {
             throw new Error("Authorization not detected!");
         } else {
+            // This ID is used for to tell what user should the `/me` endpoint target.
             return "some-user-ID";
         }
     },
