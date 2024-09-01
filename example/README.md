@@ -33,6 +33,14 @@ $ sqlite3 test.db < ./structure.sql
 $ sqlite3 test.db < ./data.sql
 ```
 
+### Structure of the database
+
+The database structure is quite simple: there are only two tables, `users` and `logins`.
+Each user is supposed to be identified by their email addresses, hence the UNIQUE constraint on `logins.email`.
+The users table has a name, an api_key, and a picture. A user can have multiple logins, which are stored in the logins table. Each login has an email address and a flag indicating whether it is the primary login for the user.
+
+That being said, you can easily notice that the database structure contains differences with the SCIM Users schema. For example, the latter expects a `userName`. If you take a look at the code, you will notice the `userName` is just an alias for the primary email.
+
 ## Play with the SCIM server
 
 ### Query a single user

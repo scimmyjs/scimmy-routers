@@ -49,8 +49,8 @@ if [ -f "$database" ]; then
 fi
 
 # Create a database with sqlite3 
-$sqlite3 "$database" < "${script_dir}/structure.sql"
+$sqlite3 "$database" < "${script_dir}/db/assets/structure.sql"
 # Feed the database with the data
-$sqlite3 "$database" < "${script_dir}/data.sql"
+$sqlite3 "$database" < "${script_dir}/db/assets/data.sql"
 
 echo "Database setup complete! The database is created at $database"
