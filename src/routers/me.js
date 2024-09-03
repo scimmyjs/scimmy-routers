@@ -25,7 +25,7 @@ export class Me extends Router {
                 
                 // Set the actual location of the user resource, or respond with 501 not implemented
                 if (user && user?.meta?.location) res.location(user.meta.location).send(user);
-                else res.status(501).send();
+                else res.status(501).send(new SCIMMY.Messages.Error({status: 501, message: "Endpoint Not Implemented"}));
             } catch (ex) {
                 res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             }
@@ -33,7 +33,7 @@ export class Me extends Router {
         
         // Respond with 501 not implemented to all other requests for /Me endpoint 
         this.use("/Me", (req, res) => {
-            res.status(501).send();
+            res.status(501).send(new SCIMMY.Messages.Error({status: 501, message: "Endpoint Not Implemented"}));
         });
     }
 }

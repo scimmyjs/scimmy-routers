@@ -169,6 +169,6 @@ export default class SCIMMYRouters extends Router {
         }
         
         // If we get to this point, there's no matching endpoints
-        this.use((req, res) => res.status(404).send());
+        this.use((req, res) => res.status(404).send(new SCIMMY.Messages.Error({status: 404, message: "Endpoint Not Found"})));
     }
 }
