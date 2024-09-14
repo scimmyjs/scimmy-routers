@@ -114,24 +114,28 @@ export class SCIMMYRouters extends Router {
             // Set correct header for SCIM responses
             res.setHeader("Content-Type", "application/scim+json");
             
-            // Evaluate the request-based basepath location
-            const basepath = await baseUri(req) ?? "";
-            
-            // Make sure it's a valid URL string
-            if (!basepath || typeof basepath === "string" && basepath.startsWith("https://")) {
-                // Construct the actual basepath to use for resource locations...
-                const location = basepath.replace(/\/$/, "") + req.baseUrl;
+            try {
+                // Evaluate the request-based basepath location
+                const basepath = await baseUri(req) ?? "";
                 
-                // ...then set all resource basepaths correctly
-                SCIMMY.Resources.Schema.basepath(location);
-                SCIMMY.Resources.ResourceType.basepath(location);
-                SCIMMY.Resources.ServiceProviderConfig.basepath(location);
-                for (let Resource of Object.values(SCIMMY.Resources.declared()))
-                    Resource.basepath(location);
-                
-                next();
-            } else {
-                res.status(500).send(new SCIMMY.Messages.Error({status: 500, message: "Method 'baseUri' must return a URL string in SCIMMYRouters constructor"}));
+                // Make sure it's a valid URL string
+                if (!basepath || typeof basepath === "string" && basepath.match(/^https?:\/\//)) {
+                    // Construct the actual basepath to use for resource locations...
+                    const location = basepath.replace(/\/$/, "") + req.baseUrl;
+                    
+                    // ...then set all resource basepaths correctly
+                    SCIMMY.Resources.Schema.basepath(location);
+                    SCIMMY.Resources.ResourceType.basepath(location);
+                    SCIMMY.Resources.ServiceProviderConfig.basepath(location);
+                    for (let Resource of Object.values(SCIMMY.Resources.declared()))
+                        Resource.basepath(location);
+                    
+                    next();
+                } else {
+                    throw new TypeError("Method 'baseUri' must return a URL string in SCIMMYRouters constructor");
+                }
+            } catch (ex) {
+                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             }
         });
         
