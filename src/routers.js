@@ -64,18 +64,22 @@ const authSchemeTypes = {
  */
 
 /**
- * SCIMMY HTTP Routers Class
- * @class SCIMMYRouters
+ * @typedef {Object} AuthScheme
+ * @property {String} type - SCIM service provider authentication scheme type
+ * @property {AuthenticationHandler} handler Method to invoke to authenticate SCIM requests
+ * @property {AuthenticationContext} [context] Method to invoke to evaluate context passed to SCIMMY handlers
+ * @property {AuthenticationBaseUri} [baseUri] Method to invoke to determine the URL to use as the base URI for any location properties in responses
+ * @property {String} [docUri] URL to use as documentation URI for service provider authentication scheme
  */
-export default class SCIMMYRouters extends Router {
+
+/**
+ * SCIMMY HTTP Routers Class
+ * @implements {SCIMMYRouters}
+ */
+export class SCIMMYRouters extends Router {
     /**
      * Construct a new instance of SCIMMYRouters, validate authentication scheme, and set SCIM Service Provider Configuration
-     * @param {Object} authScheme - details of the means of authenticating SCIM requests
-     * @param {String} authScheme.type - SCIM service provider authentication scheme type
-     * @param {AuthenticationHandler} authScheme.handler - method to invoke to authenticate SCIM requests
-     * @param {AuthenticationContext} [authScheme.context] - method to invoke to evaluate context passed to SCIMMY handlers
-     * @param {AuthenticationBaseUri} [authScheme.baseUri] - method to invoke to determine the URL to use as the base URI for any location properties in responses
-     * @param {String} [authScheme.docUri] - URL to use as documentation URI for service provider authentication scheme
+     * @param {AuthScheme} authScheme - details of the means of authenticating SCIM requests
      */
     constructor(authScheme = {}) {
         const {type, docUri, handler, context = (() => {}), baseUri = (() => {})} = authScheme;
@@ -103,7 +107,7 @@ export default class SCIMMYRouters extends Router {
         });
         
         // Make sure SCIM JSON is decoded in request body
-        this.use(express.json({type: [ "application/scim+json", "application/json" ], limit: SCIMMY.Config.get()?.bulk?.maxPayloadSize ?? "1mb"}));
+        this.use(express.json({type: ["application/scim+json", "application/json"], limit: SCIMMY.Config.get()?.bulk?.maxPayloadSize ?? "1mb"}));
         
         // Listen for incoming requests to determine basepath for all resource types
         this.use("/", async (req, res, next) => {
@@ -172,3 +176,5 @@ export default class SCIMMYRouters extends Router {
         this.use((req, res) => res.status(404).send(new SCIMMY.Messages.Error({status: 404, message: "Endpoint Not Found"})));
     }
 }
+
+export default SCIMMYRouters;
