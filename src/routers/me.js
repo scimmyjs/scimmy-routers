@@ -16,7 +16,7 @@ export class Me extends Router {
         super({mergeParams: true});
         
         // Respond to GET requests for /Me endpoint
-        this.get("/Me", async (req, res) => {
+        this.get("/Me", async (req, res, next) => {
             try {
                 const id = await handler(req);
                 const isDeclared = SCIMMY.Resources.declared(SCIMMY.Resources.User);
@@ -25,15 +25,15 @@ export class Me extends Router {
                 
                 // Set the actual location of the user resource, or respond with 501 not implemented
                 if (user && user?.meta?.location) res.location(user.meta.location).send(user);
-                else res.status(501).send(new SCIMMY.Messages.Error({status: 501, message: "Endpoint Not Implemented"}));
+                else next(new SCIMMY.Types.Error(501, null, "Endpoint Not Implemented"));
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
         
         // Respond with 501 not implemented to all other requests for /Me endpoint 
-        this.use("/Me", (req, res) => {
-            res.status(501).send(new SCIMMY.Messages.Error({status: 501, message: "Endpoint Not Implemented"}));
+        this.use("/Me", (req, res, next) => {
+            next(new SCIMMY.Types.Error(501, null, "Endpoint Not Implemented"));
         });
     }
 }

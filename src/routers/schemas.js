@@ -12,19 +12,19 @@ export class Schemas extends Router {
     constructor() {
         super({mergeParams: true});
         
-        this.get("/Schemas", async (req, res) => {
+        this.get("/Schemas", async (req, res, next) => {
             try {
                 res.send(await new SCIMMY.Resources.Schema(req.query).read());
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
         
-        this.get("/Schemas/:id", async (req, res) => {
+        this.get("/Schemas/:id", async (req, res, next) => {
             try {
                 res.send(await new SCIMMY.Resources.Schema(req.params.id, req.query).read());
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
     }

@@ -15,19 +15,19 @@ export class Bulk extends Router {
         super({mergeParams: true});
         
         // Respond to POST requests for /Bulk endpoint
-        this.post("/Bulk", async (req, res) => {
+        this.post("/Bulk", async (req, res, next) => {
             try {
                 const {supported, maxPayloadSize, maxOperations} = SCIMMY.Config.get()?.bulk ?? {};
                 
                 if (!supported) {
-                    res.status(501).send(new SCIMMY.Messages.Error({status: 501, message: "Endpoint Not Implemented"}));
+                    next(new SCIMMY.Types.Error(501, null, "Endpoint Not Implemented"));
                 } else if (Number(req.header("content-length")) > maxPayloadSize) {
-                    throw new SCIMMY.Types.Error(413, null, `The size of the bulk operation exceeds maxPayloadSize limit (${maxPayloadSize})`);
+                    next(new SCIMMY.Types.Error(413, null, `The size of the bulk operation exceeds maxPayloadSize limit (${maxPayloadSize})`));
                 } else {
                     res.status(200).send(await (new SCIMMY.Messages.BulkRequest(req.body, maxOperations)).apply(undefined, await context(req)));
                 }
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
     }

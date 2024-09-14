@@ -12,11 +12,11 @@ export class ServiceProviderConfig extends Router {
     constructor() {
         super({mergeParams: true});
         
-        this.get("/ServiceProviderConfig", async (req, res) => {
+        this.get("/ServiceProviderConfig", async (req, res, next) => {
             try {
                 res.send(await new SCIMMY.Resources.ServiceProviderConfig(req.query).read());
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
     }

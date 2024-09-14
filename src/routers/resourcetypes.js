@@ -12,19 +12,19 @@ export class ResourceTypes extends Router {
     constructor() {
         super({mergeParams: true});
         
-        this.get("/ResourceTypes", async (req, res) => {
+        this.get("/ResourceTypes", async (req, res, next) => {
             try {
                 res.send(await new SCIMMY.Resources.ResourceType(req.query).read());
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
         
-        this.get("/ResourceTypes/:id", async (req, res) => {
+        this.get("/ResourceTypes/:id", async (req, res, next) => {
             try {
                 res.send(await new SCIMMY.Resources.ResourceType(req.params.id, req.query).read());
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
     }

@@ -132,10 +132,10 @@ export class SCIMMYRouters extends Router {
                     
                     next();
                 } else {
-                    throw new TypeError("Method 'baseUri' must return a URL string in SCIMMYRouters constructor");
+                    next(new TypeError("Method 'baseUri' must return a URL string in SCIMMYRouters constructor"));
                 }
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
         
@@ -178,6 +178,12 @@ export class SCIMMYRouters extends Router {
         
         // If we get to this point, there's no matching endpoints
         this.use((req, res) => res.status(404).send(new SCIMMY.Messages.Error({status: 404, message: "Endpoint Not Found"})));
+        
+        // Handle any middleware exceptions, and if necessary, forward to next middleware
+        this.use((ex, req, res, next) => {
+            res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+            if ((ex.status ?? 500) >= 500) next(ex);
+        });
     }
 }
 

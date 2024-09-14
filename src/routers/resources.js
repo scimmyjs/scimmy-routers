@@ -18,52 +18,52 @@ export class Resources extends Router {
         // Mount /.search endpoint for resource
         this.use(new Search(Resource, context));
         
-        this.get("/", async (req, res) => {
+        this.get("/", async (req, res, next) => {
             try {
                 res.send(await new Resource(req.query).read(await context(req)));
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
         
-        this.get("/:id", async (req, res) => {
+        this.get("/:id", async (req, res, next) => {
             try {
                 res.send(await new Resource(req.params.id, req.query).read(await context(req)));
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
         
-        this.post("/", async (req, res) => {
+        this.post("/", async (req, res, next) => {
             try {
                 res.status(201).send(await new Resource(req.query).write(req.body, await context(req)));
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
         
-        this.put("/:id", async (req, res) => {
+        this.put("/:id", async (req, res, next) => {
             try {
                 res.send(await new Resource(req.params.id, req.query).write(req.body, await context(req)));
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
         
-        this.patch("/:id", async (req, res) => {
+        this.patch("/:id", async (req, res, next) => {
             try {
                 const value = await new Resource(req.params.id, req.query).patch(req.body, await context(req));
                 res.status(!!value ? 200 : 204).send(value);
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
         
-        this.delete("/:id", async (req, res) => {
+        this.delete("/:id", async (req, res, next) => {
             try {
                 res.status(204).send(await new Resource(req.params.id).dispose(await context(req)));
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
     }

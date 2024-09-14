@@ -16,11 +16,11 @@ export class Search extends Router {
         super({mergeParams: true});
         
         // Respond to POST requests for /.search endpoint
-        this.post("/.search", async (req, res) => {
+        this.post("/.search", async (req, res, next) => {
             try {
                 res.status(200).send(await (new SCIMMY.Messages.SearchRequest(req.body)).apply(Resource.prototype instanceof SCIMMY.Types.Resource ? [Resource] : undefined, await context(req)));
             } catch (ex) {
-                res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
+                next(ex);
             }
         });
     }
