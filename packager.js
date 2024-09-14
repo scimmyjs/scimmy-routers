@@ -33,7 +33,7 @@ export class Packager {
     
     /**
      * Create a step function to consistently log action's results
-     * @param {Boolean} verbose - whether or not to show extended info about action's results
+     * @param {Boolean} [verbose=true] - whether to show extended info about action's results
      * @returns {Function} step function
      */
     static action(verbose = true) {
@@ -96,7 +96,7 @@ export class Packager {
     
     /**
      * Build the SCIMMY Routers library
-     * @param {Boolean} [verbose=false] - whether or not to show extended output from each step of the build
+     * @param {Boolean} [verbose=false] - whether to show extended output from each step of the build
      * @returns {Promise<void>} a promise that resolves when the build has completed
      */
     static async build(verbose = false) {
@@ -121,16 +121,19 @@ export class Packager {
             pre: `Writing definitions to ${chalk.blue(dest)}/${chalk.magenta(Packager.#assets.entry.replace(".js", ".d.ts"))}: `,
             post: "Generated type definitions from the following files:",
             action: async () => {
-                let dtsPath = `${dest}/${Packager.#assets.entry.replace(".js", ".d.ts")}`,
-                    bundles = await Packager.typedefs(`${src}/${Packager.#assets.entry}`, dtsPath, {
-                        allowJs: true, declaration: true, emitDeclarationOnly: true
-                    }),
-                    dtsFile = await fs.readFile(dtsPath, "utf8");
+                const dtsName = Packager.#assets.entry.replace(".js", ".d.ts");
+                const dtsPath = `${dest}/${dtsName}`;
+                const bundles = await Packager.typedefs(`${src}/${Packager.#assets.entry}`, dtsPath);
+                const dtsSrc = String(await fs.readFile(`${src}/${dtsName}`, "utf8"));
+                const dtsDest = String(await fs.readFile(dtsPath, "utf8"))
+                    // Strip irrelevant module declarations from generated .d.ts file
+                    .match(/declare module "routers" \{\n(.*)}/s).pop();
                 
-                // Strip irrelevant module declarations from .d.ts file, and rename module
-                await fs.writeFile(dtsPath, String(dtsFile)
-                    .slice(dtsFile.indexOf('declare module "routers"'))
-                    .replace('declare module "routers"', 'declare module "scimmy-routers"'));
+                await fs.writeFile(dtsPath, dtsSrc
+                    // Strip irrelevant parts of .d.ts file...
+                    .slice(dtsSrc.indexOf('declare module "scimmy-routers"'))
+                    // ...and insert generated definitions
+                    .replace(/(})$/s, `${dtsDest}$1`));
                 
                 return bundles.map(file => file.replace(src, chalk.grey(src)));
             }
@@ -185,15 +188,15 @@ export class Packager {
      * Use TypeScript Compiler API to generate type definitions
      * @param {String} src - the source directory to read assets from
      * @param {String} dest - the destination file or directory to write compiled output to
-     * @param {Object} config - options to pass through to the TypeScript Compiler
      * @returns {Promise<String[]>} names of files with generated types
      */
-    static async typedefs(src, dest, config) {
+    static async typedefs(src, dest) {
         // Prepare a TypeScript Compiler Program for compilation
         const {default: ts} = await import("typescript");
         const program = ts.createProgram(Array.isArray(src) ? src : [src], {
+            allowJs: true, declaration: true, emitDeclarationOnly: true,
             // If destination is a TypeScript or JavaScript file, assume all sources are targeting a single file
-            ...config, ...(dest.endsWith(".ts") || dest.endsWith(".js") ? {outFile: dest} : {outDir: dest})
+            ...(dest.endsWith(".ts") || dest.endsWith(".js") ? {outFile: dest} : {outDir: dest})
         });
         
         // Run the compiler instance
