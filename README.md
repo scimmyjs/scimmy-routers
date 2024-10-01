@@ -8,7 +8,7 @@ The routers leverage work done in the [SCIMMY](https://github.com/scimmyjs/scimm
 ##### Requirements
 *   [Node.js](https://nodejs.org) v16+ with NPM 7+ 
 
-## Installation and Usage
+## 🛠️ Installation and Usage
 
 Through NPM:
 ```
@@ -37,6 +37,7 @@ app.use("/scim", new SCIMMYRouters({
         if (!request.header("Authorization")?.startsWith("Bearer ")) {
             throw new Error("Authorization not detected!");
         } else {
+            // This ID is used for to tell what user should the `/me` endpoint target.
             return "some-user-ID";
         }
     },
@@ -48,7 +49,7 @@ app.use("/scim", new SCIMMYRouters({
 }));
 ```
 
-## API
+## 🔗 API
 
 SCIMMY Express Routers provides a constructable middleware class which extends the Express Router class.  
 It can be used at any level of an Express app, as with any other middleware, however it is recommended that you include
@@ -72,3 +73,8 @@ The properties of that object are:
     *   If omitted, or if it returns `null`/`undefined`, location properties will default to relative paths.
 
 *   ```docUri``` - optional string specifying the URL to use as the documentation URI for the service provider authentication scheme.
+
+## 🚀 Example
+
+You would like to see it in action, and discover all the capabilities this package offers you with few lines of code?
+Take a look at the [example](/example/README.md), follow the instructions to setup a SCIM server to play with, and take a look at the code.
