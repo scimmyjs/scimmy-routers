@@ -18,6 +18,7 @@
     "url": "https://github.com/scimmyjs/scimmy-routers/issues"
   },
   "dependencies": {
+    "@databases/split-sql-query": "^1.0.4",
     "@databases/sql": "^3.3.0",
     "@databases/sqlite": "^4.0.2",
     "scimmy-routers": "file:.."

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS "users" (
   "picture" varchar
 );
 
-CREATE INDEX "index_users_on_api_key" ON "users"("api_key");
+CREATE INDEX IF NOT EXISTS "index_users_on_api_key" ON "users"("api_key");
 
 CREATE TABLE IF NOT EXISTS "logins" (
   "id" integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -13,5 +13,6 @@ CREATE TABLE IF NOT EXISTS "logins" (
   "email" varchar NOT NULL UNIQUE,
   "primary" boolean DEFAULT 'f'
 );
-CREATE INDEX "index_logins_on_emails" ON "logins"("email");
-CREATE INDEX "index_logins_on_user_id" ON "logins"("user_id");
+
+CREATE INDEX IF NOT EXISTS "index_logins_on_emails" ON "logins"("email");
+CREATE INDEX IF NOT EXISTS "index_logins_on_user_id" ON "logins"("user_id");

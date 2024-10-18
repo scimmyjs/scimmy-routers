@@ -4,6 +4,7 @@ import SCIMMYRouters, { SCIMMY } from 'scimmy-routers';
 import { User } from './db/index.js';
 import crypto from 'crypto';
 import { fromSCIMMYUser, toSCIMMYUser } from './utils/userUtils.js';
+import { initDb } from './db/init-db.js';
 
 // Create a new express app
 const app = express();
@@ -144,6 +145,11 @@ app.use("/scim", new SCIMMYRouters({
   }
 }));
 
-app.listen(3000, () => {
-  console.info("Server running on port 3000");
-});
+async function main() {
+  await initDb();
+  app.listen(3000, () => {
+    console.info("🚀 Scim Server running on port 3000");
+  });
+}
+
+main();

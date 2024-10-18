@@ -15,25 +15,7 @@ cd examples/
 npm install
 ```
 
-## Setup the database
-
-### Install Sqlite
-First ensure that you have [sqlite3](http://sqlite3.org/) installed on your system. On Linux, you may install it using your package manager.
-
-### Create the database
-
-Then you may run this script to create the `test.db` database:
-```bash
-./setup-db.sh
-```
-
-Or alternatively run the following commands:
-```bash
-sqlite3 test.db < ./structure.sql
-sqlite3 test.db < ./data.sql
-```
-
-### Structure of the database
+## Structure of the database
 
 The database structure is quite simple: there are only two tables, `users` and `logins`.
 Each user is supposed to be identified by their email addresses, hence the UNIQUE constraint on `logins.email`.
