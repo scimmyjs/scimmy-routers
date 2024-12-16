@@ -64,22 +64,17 @@ const authSchemeTypes = {
  */
 
 /**
- * @typedef {Object} AuthScheme
- * @property {String} type - SCIM service provider authentication scheme type
- * @property {AuthenticationHandler} handler Method to invoke to authenticate SCIM requests
- * @property {AuthenticationContext} [context] Method to invoke to evaluate context passed to SCIMMY handlers
- * @property {AuthenticationBaseUri} [baseUri] Method to invoke to determine the URL to use as the base URI for any location properties in responses
- * @property {String} [docUri] URL to use as documentation URI for service provider authentication scheme
- */
-
-/**
  * SCIMMY HTTP Routers Class
- * @implements {SCIMMYRouters}
  */
 export class SCIMMYRouters extends Router {
     /**
      * Construct a new instance of SCIMMYRouters, validate authentication scheme, and set SCIM Service Provider Configuration
-     * @param {AuthScheme} authScheme - details of the means of authenticating SCIM requests
+     * @param {Object} authScheme - details of the means of authenticating SCIM requests
+     * @param {String} authScheme.type - SCIM service provider authentication scheme type
+     * @param {AuthenticationHandler} authScheme.handler Method to invoke to authenticate SCIM requests
+     * @param {AuthenticationContext} [authScheme.context] Method to invoke to evaluate context passed to SCIMMY handlers
+     * @param {AuthenticationBaseUri} [authScheme.baseUri] Method to invoke to determine the URL to use as the base URI for any location properties in responses
+     * @param {String} [authScheme.docUri] URL to use as documentation URI for service provider authentication scheme
      */
     constructor(authScheme = {}) {
         const {type, docUri, handler, context = (() => {}), baseUri = (() => {})} = authScheme;

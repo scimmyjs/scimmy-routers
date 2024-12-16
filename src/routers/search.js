@@ -4,7 +4,6 @@ import SCIMMY from "scimmy";
 /**
  * SCIMMY Search Endpoint Router
  * @since 1.0.0
- * @class SCIMMYRouters.Search
  */
 export class Search extends Router {
     /**
