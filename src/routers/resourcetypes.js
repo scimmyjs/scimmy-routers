@@ -3,7 +3,6 @@ import SCIMMY from "scimmy";
 
 /**
  * SCIMMY ResourceTypes Endpoints Router
- * @class SCIMMYRouters.ResourceTypes
  */
 export class ResourceTypes extends Router {
     /**

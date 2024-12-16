@@ -4,7 +4,6 @@ import SCIMMY from "scimmy";
 /**
  * SCIMMY Bulk Endpoint Router
  * @since 1.0.0
- * @class SCIMMYRouters.Bulk
  */
 export class Bulk extends Router {
     /**

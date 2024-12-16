@@ -3,7 +3,6 @@ import SCIMMY from "scimmy";
 
 /**
  * SCIMMY Schemas Endpoints Router
- * @class SCIMMYRouters.Schemas
  */
 export class Schemas extends Router {
     /**

@@ -3,7 +3,6 @@ import SCIMMY from "scimmy";
 
 /**
  * SCIMMY ServiceProviderConfig Endpoints Router
- * @class SCIMMYRouters.ServiceProviderConfig
  */
 export class ServiceProviderConfig extends Router {
     /**

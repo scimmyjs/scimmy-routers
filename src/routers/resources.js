@@ -1,10 +1,8 @@
 import {Router} from "express";
 import {Search} from "./search.js";
-import SCIMMY from "scimmy";
 
 /**
  * SCIMMY Resource Type Instance Endpoints Router
- * @class SCIMMYRouters.Resources
  */
 export class Resources extends Router {
     /**
