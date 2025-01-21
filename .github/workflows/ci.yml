@@ -1,0 +1,27 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+jobs:
+  test-ci:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: |
+          npm ci
+          ./node_modules/.bin/c8 --reporter=lcovonly npm run test:ci
+      - uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: test-results
+          path: test/results-report.json
+      - uses: coverallsapp/github-action@v2
+        if: always()
+        with:
+          file: coverage/lcov.info
