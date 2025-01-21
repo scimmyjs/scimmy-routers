@@ -17,10 +17,10 @@ const suite = (app, resources = [], path = "") => {
         await expectListResponse(request(app).post(`${path}/.search`).send({schemas: ["urn:ietf:params:scim:api:messages:2.0:SearchRequest"]}), []);
     });
     
-    specify.skip(`GET ${path}/.search`, () => expectNotFound(request(app).get(`${path}/.search`)));
-    specify.skip(`PUT ${path}/.search`, () => expectNotFound(request(app).put(`${path}/.search`)));
-    specify.skip(`PATCH ${path}/.search`, () => expectNotFound(request(app).patch(`${path}/.search`)));
-    specify.skip(`DELETE ${path}/.search`, () => expectNotFound(request(app).del(`${path}/.search`)));
+    specify(`GET ${path}/.search`, () => expectNotFound(request(app).get(`${path}/.search`)));
+    specify(`PUT ${path}/.search`, () => expectNotFound(request(app).put(`${path}/.search`)));
+    specify(`PATCH ${path}/.search`, () => expectNotFound(request(app).patch(`${path}/.search`)));
+    specify(`DELETE ${path}/.search`, () => expectNotFound(request(app).del(`${path}/.search`)));
 };
 
 describe("Search middleware", () => {

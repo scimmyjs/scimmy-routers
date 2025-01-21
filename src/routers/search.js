@@ -8,10 +8,10 @@ import SCIMMY from "scimmy";
 export class Search extends Router {
     /**
      * Construct an instance of an express router with endpoints for accessing Search POST endpoint
-     * @param {Function|typeof SCIMMY.Types.Resource} [Resource] - the resource type instance for which endpoints are being registered
+     * @param {AuthenticationContext|typeof SCIMMY.Types.Resource} [Resource] - the resource type instance for which endpoints are being registered
      * @param {AuthenticationContext} [context] - method to invoke to evaluate context passed to SCIMMY handlers
      */
-    constructor(Resource, context = (Resource.prototype instanceof SCIMMY.Types.Resource ? (() => {}) : Resource)) {
+    constructor(Resource, context = (Resource.prototype instanceof SCIMMY.Types.Resource ? undefined : Resource)) {
         super({mergeParams: true});
         
         // Respond to POST requests for /.search endpoint
@@ -21,6 +21,11 @@ export class Search extends Router {
             } catch (ex) {
                 next(ex);
             }
+        });
+        
+        // Respond with 404 not found to all other requests for /.search endpoint
+        this.use("/.search", (req, res, next) => {
+            next(new SCIMMY.Types.Error(404, null, "Endpoint Not Found"));
         });
     }
 }
