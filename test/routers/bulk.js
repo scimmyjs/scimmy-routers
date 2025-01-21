@@ -19,7 +19,7 @@ const suite = (app) => {
     specify("POST /Bulk", async () => {
         sandbox.stub(SCIMMY.Resources, "declared").returns({});
         sandbox.stub(SCIMMY.Config, "get")
-            .onFirstCall().returns({bulk: {}})
+            .onFirstCall().returns({})
             .onSecondCall().returns({bulk: {supported: true, maxOperations: 1000, maxPayloadSize: 0}})
             .onThirdCall().returns({bulk: {supported: true, maxOperations: 1000, maxPayloadSize: 1048576}})
             .throws();

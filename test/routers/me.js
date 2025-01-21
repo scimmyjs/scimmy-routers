@@ -16,9 +16,14 @@ const suite = (app) => {
             .onSecondCall().returns({})
             .callThrough();
         
+        const stub = sandbox.stub(SCIMMY.Resources, "declared").returns(true);
         await expectContentType(request(app).get("/Me")).expect(200, {meta: {location: "/path"}});
         await expectNotImplemented(request(app).get("/Me"));
         await expectNotImplemented(request(app).get("/Me"), "Method 'egress' not implemented by resource 'User'");
+        
+        stub.returns(false);
+        await expectNotImplemented(request(app).get("/Me"));
+        await expectNotImplemented(request(app).get("/Me"));
     });
     
     specify("GET /Me/:id", () => expectNotImplemented(request(app).get("/Me/test")));
@@ -29,12 +34,14 @@ const suite = (app) => {
 };
 
 describe("Me middleware", () => {
-    const sandbox = sinon.createSandbox();
+    const handler = sinon.stub()
+        .onCall(0).returns("1")
+        .onCall(1).returns("2")
+        .onCall(2).returns("3")
+        .onCall(3).returns("4")
+        .returns(false);
     
-    beforeEach(() => sandbox.stub(SCIMMY.Resources, "declared").returns(true));
-    afterEach(() => sandbox.restore());
-    
-    suite(withStubs(new Me(() => "1", () => {})));
+    suite(withStubs(new Me(handler, () => {})));
 });
 
 export default suite;

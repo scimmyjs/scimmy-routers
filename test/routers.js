@@ -4,6 +4,7 @@ import request from "supertest";
 import express from "express";
 import SCIMMY from "scimmy";
 import SCIMMYRouters from "#@/routers.js";
+import {expectNotFound, expectInternalServerError} from "./hooks/responses.js";
 import Resources from "./routers/resources.js";
 import ServiceProviderConfig from "./routers/spconfig.js";
 import ResourceTypes from "./routers/resourcetypes.js";
@@ -84,15 +85,16 @@ describe("SCIMMYRouters", () => {
         });
         
         it("should expect authentication baseUri to return a string, if defined", async () => {
-            await request(express().set("env", "test").use(new SCIMMYRouters({...ValidAuthScheme, baseUri: () => true}))).get("/").expect(500, {
-                schemas: ["urn:ietf:params:scim:api:messages:2.0:Error"], status: "500",
-                detail: "Method 'baseUri' must return a URL string in SCIMMYRouters constructor"
-            });
+            const app = express().set("env", "test").use(new SCIMMYRouters({
+                ...ValidAuthScheme, baseUri: sandbox.stub()
+                    .onFirstCall().returns("https://www.example.com/scim")
+                    .onSecondCall().returns(true)
+                    .throws()
+            }));
             
-            await request(express().set("env", "test").use(new SCIMMYRouters({...ValidAuthScheme, baseUri: () => {throw new Error("Thrown in baseUri method")}}))).get("/").expect(500, {
-                schemas: ["urn:ietf:params:scim:api:messages:2.0:Error"], status: "500",
-                detail: "Thrown in baseUri method"
-            });
+            await expectNotFound(request(app).get("/"));
+            await expectInternalServerError(request(app).get("/"), "Method 'baseUri' must return a URL string in SCIMMYRouters constructor");
+            await expectInternalServerError(request(app).get("/"));
         });
         
         it("should expect string value 'startIndex' and 'count' query parameters to be cast to integers", async () => {
@@ -109,12 +111,22 @@ describe("SCIMMYRouters", () => {
             assert.strictEqual(typeof intercepted.query.count, "number",
                 "SCIMMYRouters middleware did not cast string value 'count' query parameter to integer");
         });
+        
+        it("should not expect 'maxPayloadSize' property of 'bulk' configuration to be defined", () => {
+            sandbox.stub(SCIMMY.Config, "get").returns();
+            
+            try {
+                new SCIMMYRouters(ValidAuthScheme);
+            } catch {
+                assert.fail("SCIMMYRouters class did not instantiate when 'maxPayloadSize' property of 'bulk' configuration was not defined");
+            }
+        });
     });
     
+    describe("ROUTE /.search", () => Search(app, SCIMMY.Resources.declared()));
     describe("ROUTE /Schemas", () => Schemas(app, SCIMMY.Schemas.declared()));
     describe("ROUTE /ResourceTypes", () => ResourceTypes(app, SCIMMY.Resources.declared()));
-    describe("ROUTE /ServiceProviderConfig", () => ServiceProviderConfig(app, true));
-    describe("ROUTE /.search", () => Search(app, SCIMMY.Resources.declared()));
+    describe("ROUTE /ServiceProviderConfig", () => ServiceProviderConfig(app));
     describe("ROUTE /Bulk", () => Bulk(app));
     describe("ROUTE /Me", () => Me(app));
     

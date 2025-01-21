@@ -23,6 +23,12 @@ const suite = (app, resources = [], path = "") => {
     specify.skip(`DELETE ${path}/.search`, () => expectNotFound(request(app).del(`${path}/.search`)));
 };
 
-describe("Search middleware", () => suite(withStubs(new Search(() => {})), [SCIMMY.Resources.User]));
+describe("Search middleware", () => {
+    it("should not expect 'context' method argument to be defined", async () => {
+        await expectBadRequest(request(withStubs(new Search(SCIMMY.Resources.User))).post("/.search"), "invalidSyntax", "SearchRequest request body messages must exclusively specify schema as 'urn:ietf:params:scim:api:messages:2.0:SearchRequest'");
+    });
+    
+    suite(withStubs(new Search(() => {})), [SCIMMY.Resources.User]);
+});
 
 export default suite;
