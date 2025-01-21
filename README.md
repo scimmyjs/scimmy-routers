@@ -1,9 +1,22 @@
-<img alt="SCIMMY Express Routers" src="https://scimmyjs.github.io/static/assets/routers.svg" width="512" />
+<p align="center">
+  <a href="https://github.com/scimmyjs/scimmy-routers" target="_blank">
+    <img alt="SCIMMY Express Routers" src="https://scimmyjs.github.io/static/assets/routers.svg" width="512" />
+  </a>
+</p>
+<p align="center">
+  <a href="https://github.com/scimmyjs/scimmy-routers/actions/workflows/ci.yml" target="_blank"><img alt="Unit Test Status" src="https://img.shields.io/github/actions/workflow/status/scimmyjs/scimmy-routers/ci.yml?branch=main&style=flat&logo=mocha&label=unit%20tests"></a>
+  <a href="https://coveralls.io/github/scimmyjs/scimmy-routers?branch=main" target="_blank"><img alt="Coverage Status" src="https://img.shields.io/coverallsCoverage/github/scimmyjs/scimmy-routers?branch=main&style=flat&logo=coveralls"></a>
+  <a href="https://github.com/sponsors/scimmyjs" target="_blank"><img alt="GitHub Sponsors" src="https://img.shields.io/github/sponsors/scimmyjs?style=flat&logo=githubsponsors"></a>
+  <a href="https://github.com/scimmyjs/scimmy-routers/blob/de976ecce0d18a71707e31358e5665d08002c46f/LICENSE.md" target="_blank"><img alt="GitHub License" src="https://img.shields.io/github/license/scimmyjs/scimmy-routers?style=flat"></a>
+</p>
 
 # SCIMMY Express Routers
 
-Provides a set of express routers that implement the application-level HTTP-based SCIM 2.0 protocol ([RFC7644](https://datatracker.ietf.org/doc/html/rfc7644)), which is designed to simplify resource provisioning and identity management in cloud-based applications and services.  
+Provides a set of express routers that implement the application-level HTTP-based SCIM 2.0 protocol ([RFC7644](https://datatracker.ietf.org/doc/html/rfc7644)), which is designed to simplify resource provisioning and identity management in cloud-based applications and services.
+
 The routers leverage work done in the [SCIMMY](https://github.com/scimmyjs/scimmy) package, which provides a set of tools that can be used to parse incoming, and format outgoing data according to the SCIM 2.0 protocol.
+
+> For details on how to use SCIMMY Resources, [visit the SCIMMY documentation](https://scimmyjs.github.io)!
 
 ##### Requirements
 *   [Node.js](https://nodejs.org) v16+ with NPM 7+ 
