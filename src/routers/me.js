@@ -31,7 +31,7 @@ export class Me extends Router {
         });
         
         // Respond with 501 not implemented to all other requests for /Me endpoint 
-        this.use("/Me", (req, res, next) => {
+        this.use("/Me$", (req, res, next) => {
             next(new SCIMMY.Types.Error(501, null, "Endpoint Not Implemented"));
         });
     }

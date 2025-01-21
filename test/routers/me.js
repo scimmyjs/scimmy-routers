@@ -2,7 +2,7 @@ import sinon from "sinon";
 import request from "supertest";
 import SCIMMY from "scimmy";
 import {withStubs} from "../hooks/middleware.js";
-import {expectContentType, expectNotImplemented} from "../hooks/responses.js";
+import {expectContentType, expectNotFound, expectNotImplemented} from "../hooks/responses.js";
 import {Me} from "#@/routers/me.js";
 
 const suite = (app) => {
@@ -26,7 +26,7 @@ const suite = (app) => {
         await expectNotImplemented(request(app).get("/Me"));
     });
     
-    specify("GET /Me/:id", () => expectNotImplemented(request(app).get("/Me/test")));
+    specify("GET /Me/:id", () => expectNotFound(request(app).get("/Me/test")));
     specify("PUT /Me", () => expectNotImplemented(request(app).put("/Me")));
     specify("POST /Me", () => expectNotImplemented(request(app).post("/Me")));
     specify("PATCH /Me", () => expectNotImplemented(request(app).patch("/Me")));
