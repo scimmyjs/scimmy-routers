@@ -1,0 +1,27 @@
+{
+  "name": "scimmy-routers-example",
+  "version": "1.0.0",
+  "description": "Example of use for scimmy-routers",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "debug": "node --inspect index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scimmyjs/scimmy-routers.git"
+  },
+  "author": "fflorent",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/scimmyjs/scimmy-routers/issues"
+  },
+  "dependencies": {
+    "@databases/split-sql-query": "^1.0.4",
+    "@databases/sql": "^3.3.0",
+    "@databases/sqlite": "^4.0.2",
+    "scimmy-routers": "file:.."
+  },
+  "homepage": "https://github.com/scimmyjs/scimmy-routers#readme"
+}
