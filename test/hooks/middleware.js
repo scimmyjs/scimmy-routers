@@ -1,9 +1,10 @@
-import express from "express";
+import express from 'express';
+import bodyParser from 'body-parser';
 import {ErrorResponse} from "scimmy/messages";
 
 export const withStubs = (router) => express()
     .set("env", "test")
-    .use(express.json({type: ["application/scim+json", "application/json"]}))
+    .use(bodyParser.json({type: ["application/scim+json", "application/json"]}))
     .use((req, res, next) => {
         res.setHeader("Content-Type", "application/scim+json");
         next();
