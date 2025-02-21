@@ -7,7 +7,7 @@ import {ServiceProviderConfig} from "./routers/spconfig.js";
 import {Search} from "./routers/search.js";
 import {Bulk} from "./routers/bulk.js";
 import {Me} from "./routers/me.js";
-import {json} from 'body-parser';
+import bodyParser from 'body-parser';
 
 // Re-export SCIMMY for consumption by dependent packages
 export {SCIMMY};
@@ -103,7 +103,7 @@ export class SCIMMYRouters extends Router {
         });
 
         // Make sure SCIM JSON is decoded in request body
-        this.use(json({type: ["application/scim+json", "application/json"], limit: SCIMMY.Config.get()?.bulk?.maxPayloadSize ?? "1mb"}));
+        this.use(bodyParser.json({type: ["application/scim+json", "application/json"], limit: SCIMMY.Config.get()?.bulk?.maxPayloadSize ?? "1mb"}));
 
         // Listen for incoming requests to determine basepath for all resource types
         this.use("/", async (req, res, next) => {
