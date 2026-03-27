@@ -14,6 +14,7 @@ docs
 coverage
 test/results-report.json
 *.local
+example/*.db
 
 # Editor directories and files
 .vscode/*
