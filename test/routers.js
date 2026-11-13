@@ -112,6 +112,24 @@ describe("SCIMMYRouters", () => {
                 "SCIMMYRouters middleware did not cast string value 'count' query parameter to integer");
         });
         
+        it("should return SCIM invalidSyntax for malformed JSON without replacing the parser detail", async () => {
+            const payload = '{"userName":';
+            let detail;
+            try {
+                JSON.parse(payload);
+            } catch (ex) {
+                detail = ex.message;
+            }
+
+            for (let type of ["application/scim+json", "application/json"]) {
+                await request(app).post("/Users").set("Content-Type", type).send(payload)
+                    .expect(400, {
+                        schemas: ["urn:ietf:params:scim:api:messages:2.0:Error"],
+                        status: "400", scimType: "invalidSyntax", detail
+                    });
+            }
+        });
+
         it("should not expect 'maxPayloadSize' property of 'bulk' configuration to be defined", () => {
             sandbox.stub(SCIMMY.Config, "get").returns();
             

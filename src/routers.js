@@ -176,6 +176,7 @@ export class SCIMMYRouters extends Router {
         
         // Handle any middleware exceptions, and if necessary, forward to next middleware
         this.use((ex, req, res, next) => {
+            if (ex.type === "entity.parse.failed") ex.scimType = "invalidSyntax";
             res.status(ex.status ?? 500).send(new SCIMMY.Messages.Error(ex));
             if ((ex.status ?? 500) >= 500) next(ex);
         });
