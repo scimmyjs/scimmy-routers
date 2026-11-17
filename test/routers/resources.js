@@ -47,11 +47,18 @@ const suite = (app, Resource, endpoint = "") => {
     
     specify(`POST ${endpoint}/:id`, () => expectNotFound(request(app).post(`${endpoint}/test`)));
     specify(`POST ${endpoint || "/"}`, async () => {
+        const value = {test: true, meta: {location: `https://example.com/scim${endpoint}/created`}};
+        const projected = {id: "created"};
         sandbox.stub(Resource.prototype, "write")
-            .onFirstCall().returns({test: true})
+            .onFirstCall().returns(value)
+            .onSecondCall().returns(projected)
             .throws();
         
-        await expectContentType(request(app).post(`${endpoint || "/"}`).send({test: true})).expect(201, {test: true});
+        await expectContentType(request(app).post(`${endpoint || "/"}`).send({test: true}))
+            .expect("Location", value.meta.location).expect(201, value);
+        sandbox.stub(Resource, "basepath").returns(undefined);
+        await expectContentType(request(app).post(`${endpoint || "/"}`).send({test: true}))
+            .expect("Location", `${endpoint}/created`).expect(201, projected);
         await expectInternalServerError(request(app).post(`${endpoint || "/"}`).send({}));
     });
     

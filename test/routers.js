@@ -131,6 +131,29 @@ describe("SCIMMYRouters", () => {
     describe("ROUTE /Me", () => Me(app));
     
     for (let Resource of Object.values(SCIMMY.Resources.declared())) {
-        describe(`ROUTE ${Resource.endpoint}`, () => Resources(app, Resource, Resource.endpoint));
+        describe(`ROUTE ${Resource.endpoint}`, () => {
+            Resources(app, Resource, Resource.endpoint);
+
+            it("should preserve the creation Location independently of attribute projection", async () => {
+                const app = express().set("env", "test").use("/scim", new SCIMMYRouters({
+                    ...ValidAuthScheme, baseUri: () => "https://example.com"
+                }));
+                const value = Resource === SCIMMY.Resources.User ? {userName: "test"} : {displayName: "test"};
+                const location = `https://example.com/scim${Resource.endpoint}/created`;
+                Resource.ingress((resource, instance) => ({...instance, id: "created"}));
+
+                for (let query of [{}, {attributes: "id"}, {excludedAttributes: "meta"}]) {
+                    await request(app).post(`/scim${Resource.endpoint}`).query(query).send(value)
+                        .expect(201).expect("Location", location).expect(({body}) => {
+                            assert.strictEqual(body.id, "created");
+                            if (query.attributes || query.excludedAttributes) assert.strictEqual(body.meta, undefined);
+                            else assert.strictEqual(body.meta.location, location);
+                            for (let attribute of Object.keys(value)) {
+                                assert.strictEqual(body[attribute], query.attributes ? undefined : value[attribute]);
+                            }
+                        });
+                }
+            });
+        });
     }
 });

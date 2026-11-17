@@ -34,7 +34,9 @@ export class Resources extends Router {
         
         this.post("/", async (req, res, next) => {
             try {
-                res.status(201).send(await new Resource(req.query).write(req.body, await context(req)));
+                const value = await new Resource(req.query).write(req.body, await context(req));
+                const location = value.meta?.location ?? `${Resource.basepath() ?? req.baseUrl}/${value.id}`;
+                res.status(201).location(location).send(value);
             } catch (ex) {
                 next(ex);
             }
